@@ -3,15 +3,27 @@ import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { formatDateTime, formatFcfa } from "@/lib/format";
 import { canUseQuotes } from "@/lib/plans";
-import { createManualQuote } from "@/app/actions/business";
 import { getLang } from "@/lib/lang";
-import { t } from "@/lib/i18n";
+import { t, type I18nKey } from "@/lib/i18n";
+import { parseStoredQuoteLines } from "@/lib/quotes";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CopyQuote } from "@/components/ui/CopyQuote";
+import { QuoteComposer } from "@/components/QuoteComposer";
 
-export default async function QuotesPage() {
+const QUOTE_ERRORS: Record<string, I18nKey> = {
+  need_line: "quoteNeedLine",
+  bad_phone: "quoteBadPhone",
+  bad_service: "quoteBadService",
+};
+
+export default async function QuotesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const ctx = await requireOwner();
   if (!ctx) return null;
+  const { error } = await searchParams;
   const lang = await getLang();
   const allowed = canUseQuotes(ctx.business.plan, ctx.business.status);
   const [quotes, services] = await Promise.all([
@@ -28,6 +40,7 @@ export default async function QuotesPage() {
       orderBy: { sortOrder: "asc" },
     }),
   ]);
+  const errorKey = error ? QUOTE_ERRORS[error] : undefined;
 
   return (
     <div className="space-y-5">
@@ -41,51 +54,42 @@ export default async function QuotesPage() {
         </div>
       ) : (
         <>
-          <form action={createManualQuote} className="card p-4 space-y-3">
-            <p className="font-bold text-lg">{t(lang, "createQuote")}</p>
-            <label className="block font-bold">
-              {t(lang, "pickService")}
-              <select name="serviceId" required className="field mt-1">
-                {services.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} — {formatFcfa(s.priceFcfa)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="block font-bold">
-              {t(lang, "quotePhone")}
-              <input name="phone" required inputMode="tel" placeholder="77 …" className="field mt-1" />
-            </label>
-            <label className="block font-bold">
-              {t(lang, "quoteNote")}
-              <textarea name="note" rows={2} className="field mt-1 min-h-20" />
-            </label>
-            <button className="btn btn-primary w-full">{t(lang, "makeQuote")}</button>
-          </form>
+          {errorKey ? <p className="alert-error">{t(lang, errorKey)}</p> : null}
+          <QuoteComposer
+            lang={lang}
+            services={services.map((s) => ({ id: s.id, name: s.name, priceFcfa: s.priceFcfa }))}
+          />
           {quotes.length === 0 ? (
             <p className="text-muted">{t(lang, "noQuotes")}</p>
           ) : (
             <ul className="space-y-3">
-              {quotes.map((q) => (
-                <li key={q.id} className="card p-4 space-y-3">
-                  <div className="flex justify-between gap-2 font-bold">
-                    <span>{q.customer.name || q.customer.phone}</span>
-                    <span>{formatFcfa(q.totalFcfa)}</span>
-                  </div>
-                  <pre className="whitespace-pre-wrap font-sans text-navy bg-soft rounded-xl px-3 py-3">
-                    {q.textBody}
-                  </pre>
-                  <CopyQuote
-                    text={q.textBody}
-                    phone={q.customer.phone}
-                    copyLabel={t(lang, "copyQuote")}
-                    copiedLabel={t(lang, "copied")}
-                    sendLabel={t(lang, "sendWa")}
-                  />
-                  <div className="text-sm text-muted">{formatDateTime(q.createdAt)}</div>
-                </li>
-              ))}
+              {quotes.map((q) => {
+                const items = parseStoredQuoteLines(q.linesJson);
+                return (
+                  <li key={q.id} className="card p-4 space-y-3">
+                    <div className="flex justify-between gap-2 font-bold">
+                      <span>{q.customer.name || q.customer.phone}</span>
+                      <span>{formatFcfa(q.totalFcfa)}</span>
+                    </div>
+                    {items.length > 1 ? (
+                      <p className="text-muted">
+                        {items.length} {t(lang, "quoteItems")}
+                      </p>
+                    ) : null}
+                    <pre className="whitespace-pre-wrap font-sans text-navy bg-soft rounded-xl px-3 py-3">
+                      {q.textBody}
+                    </pre>
+                    <CopyQuote
+                      text={q.textBody}
+                      phone={q.customer.phone}
+                      copyLabel={t(lang, "copyQuote")}
+                      copiedLabel={t(lang, "copied")}
+                      sendLabel={t(lang, "sendWa")}
+                    />
+                    <div className="text-sm text-muted">{formatDateTime(q.createdAt)}</div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </>

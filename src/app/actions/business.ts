@@ -1,12 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireOwner } from "@/lib/auth";
 import { getWhatsAppAdapter } from "@/lib/whatsapp/cloud";
-import { normalizeSnPhone } from "@/lib/phone";
-import { buildQuoteText } from "@/lib/quotes";
+import { isValidSnPhone, normalizeSnPhone } from "@/lib/phone";
+import { buildQuoteText, parseQuoteDraft, type QuoteLine } from "@/lib/quotes";
 import { addDays } from "@/lib/format";
+import { canUseQuotes } from "@/lib/plans";
 import { writeAudit } from "@/server/services/audit";
 
 export async function replyHandoff(formData: FormData): Promise<void> {
@@ -297,28 +299,76 @@ export async function requestManualPayment(formData: FormData): Promise<void> {
 export async function createManualQuote(formData: FormData): Promise<void> {
   const ctx = await requireOwner();
   if (!ctx) return;
-  const serviceId = String(formData.get("serviceId") || "");
+  if (!canUseQuotes(ctx.business.plan, ctx.business.status)) {
+    redirect("/app/abonnement");
+  }
   const phone = String(formData.get("phone") || "").trim();
   const name = String(formData.get("name") || "").trim();
-  if (!serviceId || !phone) return;
-  const service = await prisma.service.findFirst({
-    where: { id: serviceId, businessId: ctx.business.id },
+  const note = String(formData.get("note") || "").trim();
+  if (!isValidSnPhone(phone)) {
+    redirect("/app/devis?error=bad_phone");
+  }
+  const parsed = parseQuoteDraft(String(formData.get("linesJson") || "[]"));
+  if (!parsed.ok) {
+    redirect("/app/devis?error=need_line");
+  }
+
+  const catalog = await prisma.service.findMany({
+    where: { businessId: ctx.business.id },
+    select: { id: true, name: true, priceFcfa: true, durationMin: true, sortOrder: true },
   });
-  if (!service) return;
+  const byId = new Map(catalog.map((s) => [s.id, s]));
+  const lines: QuoteLine[] = [];
+  const toSave: { name: string; priceFcfa: number }[] = [];
+
+  for (const draft of parsed.lines) {
+    if (draft.serviceId) {
+      const service = byId.get(draft.serviceId);
+      if (!service) {
+        redirect("/app/devis?error=bad_service");
+      }
+      lines.push({ name: service.name, qty: draft.qty, priceFcfa: service.priceFcfa });
+      continue;
+    }
+    lines.push({ name: draft.name, qty: draft.qty, priceFcfa: draft.priceFcfa });
+    if (draft.saveService) toSave.push({ name: draft.name, priceFcfa: draft.priceFcfa });
+  }
+  if (!lines.length) redirect("/app/devis?error=need_line");
+
+  if (toSave.length) {
+    let sortOrder = catalog.reduce((m, s) => Math.max(m, s.sortOrder), 0);
+    const known = new Set(catalog.map((s) => s.name.toLowerCase()));
+    for (const item of toSave) {
+      const key = item.name.toLowerCase();
+      if (known.has(key)) continue;
+      known.add(key);
+      sortOrder += 1;
+      await prisma.service.create({
+        data: {
+          businessId: ctx.business.id,
+          name: item.name,
+          priceFcfa: item.priceFcfa,
+          durationMin: ctx.business.defaultDurationMin || 60,
+          sortOrder,
+        },
+      });
+    }
+    revalidatePath("/app/fiche");
+  }
+
   const customerPhone = normalizeSnPhone(phone);
   const customer = await prisma.customer.upsert({
     where: { businessId_phone: { businessId: ctx.business.id, phone: customerPhone } },
     create: { businessId: ctx.business.id, phone: customerPhone, name: name || null },
     update: name ? { name } : {},
   });
-  const lines = [{ name: service.name, qty: 1, priceFcfa: service.priceFcfa }];
   const { text, total } = buildQuoteText({
     businessName: ctx.business.name,
     customerName: customer.name,
     lines,
-    lang: "fr",
+    lang: ctx.business.defaultLang === "wo" ? "wo" : "fr",
+    note,
   });
-  const note = String(formData.get("note") || "").trim();
   const expiresAt = addDays(new Date(), 7);
   await prisma.quote.create({
     data: {
