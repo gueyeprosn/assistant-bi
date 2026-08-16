@@ -56,6 +56,7 @@ export function parseFaqFields(questions: string[], answers: string[]): FaqItem[
     const q = String(questions[i] || "").trim();
     const r = String(answers[i] || "").trim();
     if (q.length >= 3 && r.length >= 3) out.push({ q, r });
+    if (out.length >= 20) break;
   }
   return out;
 }

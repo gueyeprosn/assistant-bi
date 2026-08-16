@@ -3,19 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { HoursEditor } from "@/components/HoursEditor";
+import { FaqListEditor } from "@/components/FaqListEditor";
 import { signupAction } from "@/app/actions/auth";
 import { DEFAULT_WEEK_HOURS } from "@/lib/hours";
 import { t, type Lang } from "@/lib/i18n";
 
 type ServiceRow = { name: string; price: string; duration: string };
-type FaqRow = { q: string; r: string };
 
 const emptyService = (): ServiceRow => ({ name: "", price: "", duration: "60" });
-const emptyFaq = (): FaqRow => ({ q: "", r: "" });
 
 export function SignupFicheForm({ lang, error }: { lang: Lang; error?: string }) {
   const [services, setServices] = useState<ServiceRow[]>([emptyService(), emptyService()]);
-  const [faqs, setFaqs] = useState<FaqRow[]>([emptyFaq(), emptyFaq(), emptyFaq()]);
   const [holidayPolicy, setHolidayPolicy] = useState<"closed" | "special">("closed");
 
   return (
@@ -208,29 +206,7 @@ export function SignupFicheForm({ lang, error }: { lang: Lang; error?: string })
           <span className="text-gold">4.</span> {t(lang, "sectionFaq")}
         </h2>
         <p className="text-muted">{t(lang, "faqHelp")}</p>
-        {faqs.map((row, i) => (
-          <div key={i} className="rounded-xl border border-line p-3 space-y-2">
-            <label className="block font-bold">
-              {t(lang, "question")} {i + 1}
-              <input
-                name="faqQ"
-                value={row.q}
-                onChange={(e) => setFaqs((rows) => rows.map((r, idx) => (idx === i ? { ...r, q: e.target.value } : r)))}
-                className="field mt-1"
-              />
-            </label>
-            <label className="block font-bold">
-              {t(lang, "answer")} {i + 1}
-              <textarea
-                name="faqR"
-                rows={3}
-                value={row.r}
-                onChange={(e) => setFaqs((rows) => rows.map((r, idx) => (idx === i ? { ...r, r: e.target.value } : r)))}
-                className="field mt-1 min-h-24"
-              />
-            </label>
-          </div>
-        ))}
+        <FaqListEditor lang={lang} />
       </section>
 
       <section className="card p-5 sm:p-7 space-y-4">

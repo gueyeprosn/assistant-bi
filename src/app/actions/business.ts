@@ -172,7 +172,8 @@ export async function saveFiche(formData: FormData): Promise<void> {
   const faqR = formData.getAll("faqR").map(String);
   const faqs = faqQ
     .map((q, i) => ({ q: q.trim(), r: String(faqR[i] || "").trim() }))
-    .filter((item) => item.q.length >= 3 && item.r.length >= 3);
+    .filter((item) => item.q.length >= 3 && item.r.length >= 3)
+    .slice(0, 20);
   await prisma.business.update({
     where: { id: ctx.business.id },
     data: {

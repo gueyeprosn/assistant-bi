@@ -4,6 +4,7 @@ import { parseHours } from "@/lib/hours";
 import { formatFcfa } from "@/lib/format";
 import { saveFiche, saveService, toggleService } from "@/app/actions/business";
 import { HoursEditor } from "@/components/HoursEditor";
+import { FaqListEditor } from "@/components/FaqListEditor";
 import { getLang } from "@/lib/lang";
 import { ficheCompleteness } from "@/lib/fiche";
 import { parseFaq } from "@/lib/faq";
@@ -20,7 +21,6 @@ export default async function FichePage() {
   });
   const hours = parseHours(ctx.business.hoursJson);
   const faqs = parseFaq(ctx.business.faqJson);
-  while (faqs.length < 3) faqs.push({ q: "", r: "" });
   const ready = ficheCompleteness({
     name: ctx.business.name,
     category: ctx.business.category,
@@ -109,12 +109,8 @@ export default async function FichePage() {
         </fieldset>
         <div className="space-y-3">
           <p className="font-bold">{t(lang, "sectionFaq")}</p>
-          {faqs.map((item, i) => (
-            <div key={i} className="space-y-2">
-              <input name="faqQ" defaultValue={item.q} placeholder={`${t(lang, "question")} ${i + 1}`} className="field" />
-              <textarea name="faqR" rows={2} defaultValue={item.r} placeholder={`${t(lang, "answer")} ${i + 1}`} className="field min-h-20" />
-            </div>
-          ))}
+          <p className="text-muted">{t(lang, "faqHelp")}</p>
+          <FaqListEditor lang={lang} initial={faqs} />
         </div>
         <label className="block font-bold">
           {t(lang, "latePolicy")}
