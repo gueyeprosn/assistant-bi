@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { DAY_LABELS_FR, type DayKey, type HoursMap } from "@/lib/hours";
 
-export function HoursEditor({ initial, label = "Horaires" }: { initial: HoursMap; label?: string }) {
+export function HoursEditor({
+  initial,
+  label = "Horaires",
+  closedLabel = "Fermé",
+}: {
+  initial: HoursMap;
+  label?: string;
+  closedLabel?: string;
+}) {
   const [hours, setHours] = useState<HoursMap>(initial);
   const ordered: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
@@ -25,15 +33,18 @@ export function HoursEditor({ initial, label = "Horaires" }: { initial: HoursMap
         const end = slot?.[1] || "18:00";
         return (
           <div key={day} className="rounded-xl border border-line p-3 space-y-2">
-            <label className="flex items-center gap-3 font-bold min-h-12">
-              <input
-                type="checkbox"
-                className="h-5 w-5"
-                checked={open}
-                onChange={(e) => setDay(day, e.target.checked, start, end)}
-              />
-              {DAY_LABELS_FR[day]}
-            </label>
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-bold">{DAY_LABELS_FR[day]}</p>
+              <label className="flex items-center gap-2 font-bold min-h-12">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5"
+                  checked={!open}
+                  onChange={(e) => setDay(day, !e.target.checked, start, end)}
+                />
+                {closedLabel}
+              </label>
+            </div>
             {open && (
               <div className="grid grid-cols-2 gap-2">
                 <input

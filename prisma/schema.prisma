@@ -67,6 +67,14 @@ model Business {
   whatsappPhoneNumberId String @default("")
   slotStepMin        Int       @default(30)
   defaultDurationMin Int       @default(60)
+  secondaryPhone     String    @default("")
+  holidayPolicy      String    @default("closed")
+  holidayHoursNote   String    @default("")
+  faqJson            String    @default("[]")
+  maxAppointmentsPerDay Int    @default(0)
+  confirmationMessage String   @default("")
+  reminderEnabled    Boolean   @default(true)
+  reminderHour       Int       @default(9)
   cancelledAt        DateTime?
   purgeAfter         DateTime?
   purgedAt           DateTime?

@@ -14,7 +14,7 @@ export async function sendJ1Reminders() {
       status: "booked",
       reminderSentAt: null,
       startsAt: { gte: from, lt: to },
-      business: { status: { in: ["trial", "active"] } },
+      business: { status: { in: ["trial", "active"] }, reminderEnabled: true },
     },
     include: {
       customer: true,

@@ -6,13 +6,16 @@ import type { Lang } from "@/lib/i18n";
 export function AuthFrame({
   lang,
   children,
+  wide = false,
 }: {
   lang: Lang;
   children: React.ReactNode;
+  wide?: boolean;
 }) {
+  const width = wide ? "max-w-xl" : "max-w-md";
   return (
     <div className="min-h-screen bg-soft flex flex-col">
-      <header className="px-4 py-5 max-w-md mx-auto w-full flex items-center justify-between">
+      <header className={`px-4 py-5 ${width} mx-auto w-full flex items-center justify-between`}>
         <Link href="/">
           <BrandLockup className="h-9 max-w-[180px]" />
         </Link>

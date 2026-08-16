@@ -7,7 +7,7 @@ import { canUseQuotes, rdvLimit } from "../plans";
 import { buildQuoteText, type QuoteLine } from "../quotes";
 import { atTimeOnDate } from "../hours";
 import { classifyIntent, type Intent } from "./intents";
-import { detectLanguage, type Lang } from "./language";
+import { resolveBotLang, type Lang } from "./language";
 import { parseWhen } from "./parser";
 import { parseState, transition, type ConvState } from "./state";
 import { bookSlot } from "@/server/services/booking";
@@ -15,6 +15,7 @@ import { writeAudit } from "@/server/services/audit";
 import { llmClassify, llmEnabled, llmPolish } from "../llm/client";
 import { factsBlock } from "../llm/prompts";
 import { BOT_TECHNICAL_FR } from "../errors";
+import { matchFaq, parseFaq } from "../faq";
 
 type Biz = Business & { services: Service[] };
 
@@ -61,7 +62,7 @@ async function handleInboundUnsafe(opts: {
       businessId: business.id,
       phone: opts.customerPhone,
       name: opts.customerName,
-      language: detectLanguage(opts.text),
+      language: resolveBotLang(opts.text, business.defaultLang),
     },
     update: opts.customerName ? { name: opts.customerName } : {},
   });
@@ -80,7 +81,7 @@ async function handleInboundUnsafe(opts: {
     });
   }
 
-  const lang = detectLanguage(opts.text);
+  const lang = resolveBotLang(opts.text, business.defaultLang);
   await prisma.customer.update({
     where: { id: customer.id },
     data: { language: lang },
@@ -215,8 +216,16 @@ async function runEngine(ctx: {
       });
     case "confirm":
       return wrap(await startBooking(ctx));
-    default:
+    default: {
+      const faq = matchFaq(parseFaq(ctx.business.faqJson), ctx.text);
+      if (faq) {
+        return wrap({
+          replies: [await maybePolish(ctx, faq.r)],
+          next: { mode: "idle" },
+        });
+      }
       return wrap(unknown(ctx));
+    }
   }
 }
 
@@ -229,9 +238,17 @@ function greet(b: Biz, lang: Lang) {
 
 function hoursReply(b: Biz, lang: Lang) {
   const text = formatHoursCompact(parseHours(b.hoursJson));
+  const holiday =
+    b.holidayPolicy === "special" && b.holidayHoursNote.trim()
+      ? lang === "wo"
+        ? `\nBés yu fête : ${b.holidayHoursNote.trim()}`
+        : `\nJours fériés : ${b.holidayHoursNote.trim()}`
+      : lang === "wo"
+        ? "\nBés yu fête : dafa tëj."
+        : "\nJours fériés : fermé.";
   return lang === "wo"
-    ? `Waxtu yu ${b.name} :\n${text}`
-    : `Horaires de ${b.name} :\n${text}`;
+    ? `Waxtu yu ${b.name} :\n${text}${holiday}`
+    : `Horaires de ${b.name} :\n${text}${holiday}`;
 }
 
 function locationReply(b: Biz, lang: Lang) {
@@ -440,6 +457,16 @@ async function finishBooking(
     notes: service?.name,
   });
   if (!booked.ok) {
+    if (booked.code === "APPOINTMENT_DAY_FULL") {
+      return {
+        replies: [
+          ctx.lang === "wo"
+            ? "Bés bii dafa fees. Tànnal bés bu nekk."
+            : "Cette journée est déjà complète. Proposez un autre jour.",
+        ],
+        next: { mode: "booking", booking: { ...booking, time: undefined } },
+      };
+    }
     const alts = await findAvailableSlots({
       businessId: ctx.business.id,
       hoursJson: ctx.business.hoursJson,
@@ -460,12 +487,13 @@ async function finishBooking(
   }
 
   const svc = service ? ` (${service.name})` : "";
+  const custom = ctx.business.confirmationMessage.trim();
+  const base =
+    ctx.lang === "wo"
+      ? `Rendez-vous bi jàll na : ${formatDate(start)} ci ${formatTime(start)}${svc}.\nDinaa la fàttali bés bu njëkk. Jërëjëf !`
+      : `C'est noté : ${formatDate(start)} à ${formatTime(start)}${svc}.\nJe vous enverrai un rappel la veille. À bientôt chez ${ctx.business.name}.`;
   return {
-    replies: [
-      ctx.lang === "wo"
-        ? `Rendez-vous bi jàll na : ${formatDate(start)} ci ${formatTime(start)}${svc}.\nDinaa la fàttali bés bu njëkk. Jërëjëf !`
-        : `C'est noté : ${formatDate(start)} à ${formatTime(start)}${svc}.\nJe vous enverrai un rappel la veille. À bientôt chez ${ctx.business.name}.`,
-    ],
+    replies: [custom ? `${base}\n${custom}` : base],
     next: { mode: "idle" },
     summary: `RDV confirmé ${formatDate(start)} ${formatTime(start)}${svc}`,
   };
@@ -657,6 +685,9 @@ async function maybePolish(
     hoursText: formatHoursCompact(parseHours(ctx.business.hoursJson)),
     servicesText: ctx.business.services
       .map((s) => `${s.name}: ${s.priceFcfa} FCFA`)
+      .join("\n"),
+    faqText: parseFaq(ctx.business.faqJson)
+      .map((item) => `Q: ${item.q}\nR: ${item.r}`)
       .join("\n"),
     lang: ctx.lang,
   });

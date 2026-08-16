@@ -17,15 +17,19 @@ export function factsBlock(opts: {
   address: string;
   hoursText: string;
   servicesText: string;
+  faqText?: string;
   lang: Lang;
 }): string {
+  const faq = opts.faqText?.trim()
+    ? `\nQuestions fréquentes :\n${opts.faqText}`
+    : "";
   return `FAITS MÉTIER
 Nom : ${opts.businessName}
 Adresse : ${opts.address}
 Horaires :
 ${opts.hoursText}
 Prestations (prix officiels) :
-${opts.servicesText}
+${opts.servicesText}${faq}
 Langue client : ${opts.lang === "wo" ? "wolof" : "français"}`;
 }
 

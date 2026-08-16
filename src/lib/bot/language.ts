@@ -49,3 +49,27 @@ export function detectLanguage(text: string): Lang {
   }
   return score >= 2 ? "wo" : "fr";
 }
+
+const FRENCH_MARKERS = [
+  "bonjour",
+  "bonsoir",
+  "s'il vous",
+  "est-ce",
+  "horaire",
+  "rendez-vous",
+  "merci",
+  "combien",
+  "adresse",
+  "tarif",
+];
+
+export function resolveBotLang(text: string, defaultLang: string): Lang {
+  const detected = detectLanguage(text);
+  if (defaultLang === "both") return detected;
+  if (defaultLang === "wo") {
+    const t = text.toLowerCase();
+    const french = FRENCH_MARKERS.filter((w) => t.includes(w)).length;
+    return french >= 2 ? "fr" : "wo";
+  }
+  return detected;
+}

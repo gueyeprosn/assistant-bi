@@ -150,7 +150,27 @@ export async function saveFiche(formData: FormData): Promise<void> {
   const hoursJson = String(formData.get("hoursJson") || ctx.business.hoursJson);
   const latePolicy = String(formData.get("latePolicy") || "");
   const cancellationPolicy = String(formData.get("cancellationPolicy") || "");
-  const minimumNoticeMin = parseInt(String(formData.get("minimumNoticeMin") || "60"), 10);
+  const minimumNoticeHours = parseInt(String(formData.get("minimumNoticeHours") || ""), 10);
+  const minimumNoticeMinRaw = parseInt(String(formData.get("minimumNoticeMin") || "60"), 10);
+  const minimumNoticeMin = Number.isFinite(minimumNoticeHours)
+    ? Math.max(0, minimumNoticeHours) * 60
+    : Number.isFinite(minimumNoticeMinRaw)
+      ? minimumNoticeMinRaw
+      : 60;
+  const slotStepMin = parseInt(String(formData.get("slotStepMin") || String(ctx.business.slotStepMin)), 10);
+  const maxAppointmentsPerDay = parseInt(String(formData.get("maxAppointmentsPerDay") || "0"), 10);
+  const confirmationMessage = String(formData.get("confirmationMessage") || "");
+  const reminderEnabled = String(formData.get("reminderEnabled") || "yes") !== "no";
+  const reminderHour = parseInt(String(formData.get("reminderHour") || "9"), 10);
+  const defaultLang = String(formData.get("defaultLang") || ctx.business.defaultLang);
+  const holidayPolicy = String(formData.get("holidayPolicy") || ctx.business.holidayPolicy);
+  const holidayHoursNote = String(formData.get("holidayHoursNote") || "");
+  const secondaryPhone = String(formData.get("secondaryPhone") || "").trim();
+  const faqQ = formData.getAll("faqQ").map(String);
+  const faqR = formData.getAll("faqR").map(String);
+  const faqs = faqQ
+    .map((q, i) => ({ q: q.trim(), r: String(faqR[i] || "").trim() }))
+    .filter((item) => item.q.length >= 3 && item.r.length >= 3);
   await prisma.business.update({
     where: { id: ctx.business.id },
     data: {
@@ -162,7 +182,17 @@ export async function saveFiche(formData: FormData): Promise<void> {
       hoursJson,
       latePolicy,
       cancellationPolicy,
-      minimumNoticeMin: Number.isFinite(minimumNoticeMin) ? minimumNoticeMin : 60,
+      minimumNoticeMin,
+      slotStepMin: Number.isFinite(slotStepMin) ? slotStepMin : ctx.business.slotStepMin,
+      maxAppointmentsPerDay: Number.isFinite(maxAppointmentsPerDay) ? maxAppointmentsPerDay : 0,
+      confirmationMessage,
+      reminderEnabled,
+      reminderHour: Number.isFinite(reminderHour) ? Math.min(23, Math.max(0, reminderHour)) : 9,
+      defaultLang: defaultLang === "wo" || defaultLang === "both" ? defaultLang : "fr",
+      holidayPolicy: holidayPolicy === "special" ? "special" : "closed",
+      holidayHoursNote,
+      secondaryPhone,
+      faqJson: JSON.stringify(faqs),
     },
   });
   revalidatePath("/app/fiche");

@@ -22,6 +22,23 @@ export async function bookSlot(opts: {
     if (opts.startsAt.getTime() < Date.now() + noticeMin * 60_000) {
       return { ok: false as const, code: "APPOINTMENT_TOO_SOON" };
     }
+    const maxPerDay = biz?.maxAppointmentsPerDay ?? 0;
+    if (maxPerDay > 0) {
+      const dayStart = new Date(opts.startsAt);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setDate(dayEnd.getDate() + 1);
+      const sameDay = await tx.appointment.count({
+        where: {
+          businessId: opts.businessId,
+          status: { in: OCCUPIED },
+          startsAt: { gte: dayStart, lt: dayEnd },
+        },
+      });
+      if (sameDay >= maxPerDay) {
+        return { ok: false as const, code: "APPOINTMENT_DAY_FULL" };
+      }
+    }
     const busy = await tx.appointment.findMany({
       where: {
         businessId: opts.businessId,

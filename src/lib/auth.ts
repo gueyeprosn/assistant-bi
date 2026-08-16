@@ -1,5 +1,5 @@
 import { prisma } from "./db";
-import { normalizeSnPhone, isValidSnPhone } from "./phone";
+import { isValidSnPhone, normalizeSnPhone } from "./phone";
 import { writeAudit } from "@/server/services/audit";
 import { checkPin, hashPin, isLocked, lockoutMessage, nextLockState } from "./auth/pin";
 import {
@@ -12,8 +12,7 @@ import {
   setSessionCookie,
   type SessionPayload,
 } from "./auth/session";
-import { DEFAULT_WEEK_HOURS } from "./hours";
-import { isFourDigitPin, isSignupCategory, slugFromName } from "./signup";
+import { slugFromName, type SignupFiche } from "./signup";
 
 export type { SessionPayload };
 export { hashPin, checkPin };
@@ -107,86 +106,77 @@ export async function requireAdmin() {
   return ctx;
 }
 
-export async function registerOwner(input: {
-  phoneRaw: string;
-  pin: string;
-  pinConfirm: string;
-  businessName: string;
-  ownerName: string;
-  category: string;
-  neighborhood: string;
-}) {
-  const businessName = input.businessName.trim();
-  const ownerName = input.ownerName.trim();
-  const neighborhood = input.neighborhood.trim();
-  const pin = input.pin.trim();
-  const pinConfirm = input.pinConfirm.trim();
-
-  if (!businessName || businessName.length < 2) {
-    return { error: "Indiquez le nom de votre activité." };
-  }
-  if (!ownerName || ownerName.length < 2) {
-    return { error: "Indiquez votre nom." };
-  }
-  if (!isSignupCategory(input.category)) {
-    return { error: "Choisissez votre métier." };
-  }
-  if (!isValidSnPhone(input.phoneRaw)) {
-    return { error: "Numéro sénégalais invalide. Exemple : 77 111 11 11." };
-  }
-  if (!isFourDigitPin(pin)) {
-    return { error: "Le code PIN doit avoir 4 chiffres." };
-  }
-  if (pin !== pinConfirm) {
-    return { error: "Les deux codes PIN ne sont pas identiques." };
-  }
-
+export async function registerOwner(input: SignupFiche) {
   const phone = normalizeSnPhone(input.phoneRaw);
+  if (!isValidSnPhone(input.phoneRaw)) {
+    return { error: "Numéro WhatsApp sénégalais invalide. Exemple : 77 111 11 11." };
+  }
   const existing = await prisma.user.findUnique({ where: { phone } });
   if (existing) {
     return { error: "Ce numéro a déjà un compte. Connectez-vous." };
   }
 
-  let slug = slugFromName(businessName, phone);
+  let slug = slugFromName(input.businessName, phone);
   let n = 0;
   while (await prisma.business.findUnique({ where: { slug } })) {
     n += 1;
-    slug = `${slugFromName(businessName, phone)}-${n}`;
+    slug = `${slugFromName(input.businessName, phone)}-${n}`;
   }
 
-  const hashed = await hashPin(pin);
+  const hashed = await hashPin(input.pin);
   const trialEndsAt = new Date();
   trialEndsAt.setDate(trialEndsAt.getDate() + 7);
+  const secondaryPhone = input.secondaryPhoneRaw ? normalizeSnPhone(input.secondaryPhoneRaw) : "";
+  const firstDuration = input.services[0]?.durationMin ?? 60;
 
   await prisma.business.create({
     data: {
-      name: businessName,
+      name: input.businessName,
       slug,
       category: input.category,
-      neighborhood,
-      address: neighborhood,
-      hoursJson: JSON.stringify(DEFAULT_WEEK_HOURS),
-      greetingFr: `Bonjour, ici ${businessName}. Je suis Assistant Bi. Je peux vous donner les horaires, les tarifs ou prendre rendez-vous.`,
-      greetingWo: `Asalaam aleekum, ${businessName} la. Man Assistant Bi laa. Mën naa la wax ci waxtu, tarif, walla jëlal rendez-vous.`,
-      defaultLang: "fr",
+      neighborhood: input.neighborhood,
+      address: input.address,
+      hoursJson: input.hoursJson,
+      greetingFr: `Bonjour, ici ${input.businessName}. Je suis Assistant Bi. Je peux vous donner les horaires, les tarifs ou prendre rendez-vous.`,
+      greetingWo: `Asalaam aleekum, ${input.businessName} la. Man Assistant Bi laa. Mën naa la wax ci waxtu, tarif, walla jëlal rendez-vous.`,
+      defaultLang: input.defaultLang,
       plan: "trial",
       status: "trial",
       trialEndsAt,
       ownerPhone: phone,
+      secondaryPhone,
+      holidayPolicy: input.holidayPolicy,
+      holidayHoursNote: input.holidayHoursNote,
+      faqJson: JSON.stringify(input.faqs),
+      slotStepMin: input.slotStepMin,
+      defaultDurationMin: firstDuration,
+      minimumNoticeMin: input.minimumNoticeMin,
+      maxAppointmentsPerDay: input.maxAppointmentsPerDay,
+      confirmationMessage: input.confirmationMessage,
+      reminderEnabled: input.reminderEnabled,
+      reminderHour: input.reminderHour,
       users: {
         create: {
           phone,
           pinHash: hashed.hash,
           pinAlgo: hashed.algo,
-          name: ownerName,
+          name: input.ownerName,
           role: "owner",
         },
+      },
+      services: {
+        create: input.services.map((s, i) => ({
+          name: s.name,
+          priceFcfa: s.priceFcfa,
+          durationMin: s.durationMin,
+          sortOrder: i + 1,
+        })),
       },
     },
   });
 
   await writeAudit({ action: "signup_ok", metadata: { phone, slug } });
-  return loginWithPhonePin(phone, pin);
+  return loginWithPhonePin(phone, input.pin);
 }
 
 export async function loginWithPhonePin(phoneRaw: string, pin: string) {

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { clearSession, loginWithPhonePin, logoutEverywhere, registerOwner } from "@/lib/auth";
+import { parseSignupForm } from "@/lib/signup";
 
 export async function loginAction(formData: FormData) {
   const phone = String(formData.get("phone") || "");
@@ -16,15 +17,11 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function signupAction(formData: FormData) {
-  const result = await registerOwner({
-    phoneRaw: String(formData.get("phone") || ""),
-    pin: String(formData.get("pin") || ""),
-    pinConfirm: String(formData.get("pinConfirm") || ""),
-    businessName: String(formData.get("businessName") || ""),
-    ownerName: String(formData.get("ownerName") || ""),
-    category: String(formData.get("category") || ""),
-    neighborhood: String(formData.get("neighborhood") || ""),
-  });
+  const parsed = parseSignupForm(formData);
+  if (!parsed.ok) {
+    redirect(`/inscription?error=${encodeURIComponent(parsed.error)}`);
+  }
+  const result = await registerOwner(parsed.data);
   if ("error" in result && result.error) {
     redirect(`/inscription?error=${encodeURIComponent(result.error)}`);
   }

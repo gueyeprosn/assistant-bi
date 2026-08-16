@@ -121,6 +121,19 @@ export async function isSlotFree(
   return !busy.some((b) => overlaps(start, end, b.start, b.end));
 }
 
+export async function countAppointmentsOnDay(businessId: string, day: Date): Promise<number> {
+  const ymd = toYmd(day);
+  const start = new Date(`${ymd}T00:00:00`);
+  const end = addDays(start, 1);
+  return prisma.appointment.count({
+    where: {
+      businessId,
+      status: { in: ["booked", "reminded", "pending"] },
+      startsAt: { gte: start, lt: end },
+    },
+  });
+}
+
 export async function countAppointmentsThisMonth(businessId: string): Promise<number> {
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth(), 1);

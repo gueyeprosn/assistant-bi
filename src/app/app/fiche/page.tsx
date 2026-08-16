@@ -6,6 +6,7 @@ import { saveFiche, saveService, toggleService } from "@/app/actions/business";
 import { HoursEditor } from "@/components/HoursEditor";
 import { getLang } from "@/app/actions/lang";
 import { ficheCompleteness } from "@/lib/fiche";
+import { parseFaq } from "@/lib/faq";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
 
@@ -18,6 +19,8 @@ export default async function FichePage() {
     orderBy: { sortOrder: "asc" },
   });
   const hours = parseHours(ctx.business.hoursJson);
+  const faqs = parseFaq(ctx.business.faqJson);
+  while (faqs.length < 3) faqs.push({ q: "", r: "" });
   const ready = ficheCompleteness({
     name: ctx.business.name,
     category: ctx.business.category,
@@ -58,6 +61,25 @@ export default async function FichePage() {
           />
         </label>
         <label className="block font-bold">
+          {t(lang, "secondaryPhone")}
+          <input name="secondaryPhone" defaultValue={ctx.business.secondaryPhone} className="field mt-1" inputMode="tel" />
+        </label>
+        <fieldset>
+          <legend className="font-bold mb-2">{t(lang, "defaultReplyLang")}</legend>
+          <label className="flex items-center gap-3 min-h-12 font-bold">
+            <input type="radio" name="defaultLang" value="fr" defaultChecked={ctx.business.defaultLang === "fr"} className="h-5 w-5" />
+            {t(lang, "french")}
+          </label>
+          <label className="flex items-center gap-3 min-h-12 font-bold">
+            <input type="radio" name="defaultLang" value="wo" defaultChecked={ctx.business.defaultLang === "wo"} className="h-5 w-5" />
+            {t(lang, "wolof")}
+          </label>
+          <label className="flex items-center gap-3 min-h-12 font-bold">
+            <input type="radio" name="defaultLang" value="both" defaultChecked={ctx.business.defaultLang === "both"} className="h-5 w-5" />
+            {t(lang, "langBoth")}
+          </label>
+        </fieldset>
+        <label className="block font-bold">
           {t(lang, "greetFr")}
           <textarea name="greetingFr" rows={3} defaultValue={ctx.business.greetingFr} className="field mt-1 min-h-24" />
         </label>
@@ -65,7 +87,28 @@ export default async function FichePage() {
           {t(lang, "greetWo")}
           <textarea name="greetingWo" rows={3} defaultValue={ctx.business.greetingWo} className="field mt-1 min-h-24" />
         </label>
-        <HoursEditor initial={hours} label={t(lang, "hours")} />
+        <HoursEditor initial={hours} label={t(lang, "hours")} closedLabel={t(lang, "closed")} />
+        <fieldset>
+          <legend className="font-bold mb-2">{t(lang, "holidays")}</legend>
+          <label className="flex items-center gap-3 min-h-12 font-bold">
+            <input type="radio" name="holidayPolicy" value="closed" defaultChecked={ctx.business.holidayPolicy !== "special"} className="h-5 w-5" />
+            {t(lang, "holidaysClosed")}
+          </label>
+          <label className="flex items-center gap-3 min-h-12 font-bold">
+            <input type="radio" name="holidayPolicy" value="special" defaultChecked={ctx.business.holidayPolicy === "special"} className="h-5 w-5" />
+            {t(lang, "holidaysSpecial")}
+          </label>
+          <input name="holidayHoursNote" defaultValue={ctx.business.holidayHoursNote} className="field mt-2" />
+        </fieldset>
+        <div className="space-y-3">
+          <p className="font-bold">{t(lang, "sectionFaq")}</p>
+          {faqs.map((item, i) => (
+            <div key={i} className="space-y-2">
+              <input name="faqQ" defaultValue={item.q} placeholder={`${t(lang, "question")} ${i + 1}`} className="field" />
+              <textarea name="faqR" rows={2} defaultValue={item.r} placeholder={`${t(lang, "answer")} ${i + 1}`} className="field min-h-20" />
+            </div>
+          ))}
+        </div>
         <label className="block font-bold">
           {t(lang, "latePolicy")}
           <textarea
@@ -85,14 +128,41 @@ export default async function FichePage() {
           />
         </label>
         <label className="block font-bold">
-          {t(lang, "minNotice")}
+          {t(lang, "minNoticeHours")}
           <input
-            name="minimumNoticeMin"
+            name="minimumNoticeHours"
             type="number"
             min={0}
-            defaultValue={ctx.business.minimumNoticeMin}
+            defaultValue={Math.round(ctx.business.minimumNoticeMin / 60)}
             className="field mt-1"
           />
+        </label>
+        <label className="block font-bold">
+          {t(lang, "slotMin")}
+          <input name="slotStepMin" type="number" min={15} defaultValue={ctx.business.slotStepMin} className="field mt-1" />
+        </label>
+        <label className="block font-bold">
+          {t(lang, "maxPerDay")}
+          <input name="maxAppointmentsPerDay" type="number" min={0} defaultValue={ctx.business.maxAppointmentsPerDay} className="field mt-1" />
+        </label>
+        <label className="block font-bold">
+          {t(lang, "confirmMsg")}
+          <textarea name="confirmationMessage" rows={2} defaultValue={ctx.business.confirmationMessage} className="field mt-1 min-h-20" />
+        </label>
+        <fieldset>
+          <legend className="font-bold mb-2">{t(lang, "reminderJ1")}</legend>
+          <label className="flex items-center gap-3 min-h-12 font-bold">
+            <input type="radio" name="reminderEnabled" value="yes" defaultChecked={ctx.business.reminderEnabled} className="h-5 w-5" />
+            {t(lang, "yes")}
+          </label>
+          <label className="flex items-center gap-3 min-h-12 font-bold">
+            <input type="radio" name="reminderEnabled" value="no" defaultChecked={!ctx.business.reminderEnabled} className="h-5 w-5" />
+            {t(lang, "no")}
+          </label>
+        </fieldset>
+        <label className="block font-bold">
+          {t(lang, "reminderHour")}
+          <input name="reminderHour" type="number" min={0} max={23} defaultValue={ctx.business.reminderHour} className="field mt-1" />
         </label>
         <button className="btn btn-primary w-full">{t(lang, "save")}</button>
       </form>
