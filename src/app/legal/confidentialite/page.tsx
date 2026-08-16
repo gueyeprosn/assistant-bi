@@ -2,7 +2,7 @@ export default function PrivacyPage() {
   return (
     <>
       <h1 className="text-3xl font-bold">Politique de confidentialité</h1>
-      <p className="text-muted">Loi sénégalaise n° 2008-12 · CDP. Modèle MVP à faire relire par un juriste.</p>
+      <p className="text-muted">Données personnelles. Modèle MVP à faire relire par un juriste.</p>
       <h2 className="text-xl font-bold pt-4">Données</h2>
       <p>
         Téléphones, noms, messages, rendez-vous et paiements d’abonnement. Finalité : faire

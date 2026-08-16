@@ -49,14 +49,15 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
     [t(lang, "proofPay"), IconCheck],
   ] as const;
 
+  const faqs = [
+    [t(lang, "faq1q"), t(lang, "faq1a")],
+    [t(lang, "faq2q"), t(lang, "faq2a")],
+    [t(lang, "faq3q"), t(lang, "faq3a")],
+  ] as const;
+
   return (
-    <div className="landing-root relative min-h-screen">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <div className="landing-orbs absolute inset-0" />
-        <div className="landing-blob landing-blob-gold" />
-        <div className="landing-blob landing-blob-light" />
-        <div className="landing-grid absolute inset-0" />
-      </div>
+    <div className="landing min-h-screen bg-white text-navy">
+      <div className="h-1 bg-gold" aria-hidden />
 
       <a
         href="#contenu"
@@ -65,163 +66,154 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
         Aller au contenu
       </a>
 
-      <div className="relative z-10">
-        <header className="sticky top-3 z-50 mx-auto max-w-6xl px-3">
-          <div className="glass glass-shine flex items-center justify-between gap-3 rounded-2xl px-3 py-2 sm:px-4">
-            <Link href="/" className="min-h-12 inline-flex items-center shrink-0">
-              <BrandLockup
-                light
-                priority
-                className="h-8 sm:h-10 max-w-[160px] sm:max-w-[210px]"
-              />
+      <header className="sticky top-0 z-50 bg-white border-b border-line">
+        <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-3">
+          <Link href="/" className="min-h-12 inline-flex items-center shrink-0">
+            <BrandLockup priority className="h-8 sm:h-9 max-w-[150px] sm:max-w-[200px]" />
+          </Link>
+          <nav className="hidden md:flex items-center gap-6 font-semibold">
+            <a href="#comment" className="min-h-12 inline-flex items-center hover:text-navy-2">
+              {t(lang, "navHow")}
+            </a>
+            <a href="#offres" className="min-h-12 inline-flex items-center hover:text-navy-2">
+              {t(lang, "navPlans")}
+            </a>
+          </nav>
+          <div className="flex items-center gap-2">
+            <LangToggle lang={lang} />
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex font-semibold min-h-12 px-3 items-center"
+            >
+              {t(lang, "space")}
             </Link>
-            <div className="flex items-center gap-2">
-              <LangToggle lang={lang} variant="glass" />
-              <Link
-                href="/login"
-                className="hidden sm:inline-flex font-semibold min-h-12 px-3 items-center text-white/90 hover:text-white transition-colors duration-200"
-              >
-                {t(lang, "space")}
-              </Link>
-              <Link href="/demo" className="btn btn-gold">
-                {t(lang, "demo")}
-              </Link>
-            </div>
+            <Link href="/demo" className="btn btn-gold">
+              {t(lang, "demo")}
+            </Link>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <main id="contenu">
-          <section className="max-w-6xl mx-auto px-4 pt-10 pb-16 grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <p className="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5 text-gold font-bold text-sm">
-                Dakar · Français + Wolof · WhatsApp
-              </p>
-              <h1 className="mt-5 text-4xl sm:text-5xl lg:text-[3.35rem] font-bold leading-[1.12] text-white">
-                {t(lang, "hero")}
-              </h1>
-              <p className="mt-5 text-lg leading-relaxed max-w-xl text-[#d5deea]">
-                {t(lang, "heroSub")}
-              </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                <Link href="/demo" className="btn btn-gold">
-                  {t(lang, "trySim")}
-                </Link>
-                <Link href="/login" className="btn btn-glass">
-                  {t(lang, "trial7")}
-                </Link>
-              </div>
-              <p className="mt-4 text-[#c5d0de]">{t(lang, "fromPrice")} · Wave / Orange Money</p>
+      <main id="contenu">
+        <section className="max-w-6xl mx-auto px-4 pt-10 sm:pt-16 pb-14 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div>
+            <p className="inline-flex items-center rounded-full border border-line bg-soft px-3 py-1.5 text-sm font-bold text-navy">
+              Français + Wolof · WhatsApp
+            </p>
+            <h1 className="mt-5 text-4xl sm:text-5xl lg:text-[3.25rem] font-bold leading-[1.12] text-navy">
+              {t(lang, "hero")}
+            </h1>
+            <p className="mt-5 text-lg leading-relaxed max-w-xl text-muted">{t(lang, "heroSub")}</p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Link href="/demo" className="btn btn-gold">
+                {t(lang, "trySim")}
+              </Link>
+              <Link href="/login" className="btn btn-ghost">
+                {t(lang, "trial7")}
+              </Link>
             </div>
+            <p className="mt-4 text-muted">{t(lang, "fromPrice")} · Wave / Orange Money</p>
+          </div>
 
-            <div className="relative">
-              <div className="glass glass-shine rounded-[2.25rem] p-4 sm:p-5">
-                <div className="landing-float">
-                  <LandingChatPreview lang={lang} />
-                </div>
-              </div>
-              <div className="absolute -left-2 top-10 hidden sm:flex glass rounded-full px-3 py-2 text-sm font-bold items-center gap-2">
-                <IconClock className="h-4 w-4 text-gold" />
+          <div className="rounded-[1.75rem] border border-line bg-soft p-4 sm:p-5">
+            <LandingChatPreview lang={lang} />
+            <div className="mt-4 flex flex-wrap gap-2 justify-center">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-line px-3 py-1.5 text-sm font-bold">
+                <IconClock className="h-4 w-4" />
                 24h/24
-              </div>
-              <div className="absolute -right-1 bottom-16 hidden sm:flex glass-gold rounded-full px-3 py-2 text-sm font-bold text-white items-center gap-2">
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white border border-line px-3 py-1.5 text-sm font-bold">
                 <IconChat className="h-4 w-4" />
                 FR + WO
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-line bg-soft">
+          <div className="max-w-6xl mx-auto px-4 py-8 grid sm:grid-cols-3 gap-4">
+            {proofs.map(([label, Icon]) => (
+              <div key={label} className="flex items-center gap-3">
+                <span className="h-12 w-12 rounded-xl bg-white border border-line text-navy flex items-center justify-center shrink-0">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <p className="font-semibold">{label}</p>
               </div>
-            </div>
-          </section>
+            ))}
+          </div>
+        </section>
 
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            <div className="grid sm:grid-cols-3 gap-3">
-              {proofs.map(([label, Icon]) => (
-                <div
-                  key={label}
-                  className="glass rounded-2xl px-5 py-4 flex items-center gap-3 transition-colors duration-200"
-                >
-                  <span className="h-11 w-11 rounded-xl bg-gold/20 text-gold flex items-center justify-center shrink-0">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <p className="font-semibold text-white">{label}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            <h2 className="text-3xl font-bold text-white mb-6">{t(lang, "how")}</h2>
-            <div className="grid md:grid-cols-3 gap-3">
-              {steps.map(([title, d, Icon], i) => (
-                <div
-                  key={title}
-                  className="glass glass-shine rounded-2xl p-5 transition-colors duration-200"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="h-11 w-11 rounded-xl bg-gold text-navy font-bold flex items-center justify-center">
-                      {i + 1}
-                    </div>
-                    <Icon className="h-6 w-6 text-gold" />
+        <section id="comment" className="max-w-6xl mx-auto px-4 py-16 scroll-mt-20">
+          <h2 className="text-3xl font-bold mb-8">{t(lang, "how")}</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {steps.map(([title, d, Icon], i) => (
+              <div key={title} className="card p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-12 w-12 rounded-xl bg-navy text-white font-bold flex items-center justify-center">
+                    {i + 1}
                   </div>
-                  <h3 className="font-bold text-lg text-white">{title}</h3>
-                  <p className="mt-2 text-[#c5d0de]">{d}</p>
+                  <Icon className="h-6 w-6 text-navy" />
                 </div>
-              ))}
-            </div>
-          </section>
+                <h3 className="font-bold text-lg">{title}</h3>
+                <p className="mt-2 text-muted">{d}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            <h2 className="text-3xl font-bold text-white mb-6">{t(lang, "what")}</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <section className="bg-soft border-y border-line">
+          <div className="max-w-6xl mx-auto px-4 py-16">
+            <h2 className="text-3xl font-bold mb-8">{t(lang, "what")}</h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {features.map(([title, d, Icon]) => (
-                <div
-                  key={title}
-                  className="glass rounded-2xl p-5 transition-colors duration-200"
-                >
-                  <span className="h-11 w-11 rounded-xl bg-white/10 text-gold flex items-center justify-center mb-4">
+                <div key={title} className="card p-6">
+                  <span className="h-12 w-12 rounded-xl bg-soft text-navy flex items-center justify-center mb-4">
                     <Icon className="h-6 w-6" />
                   </span>
-                  <h3 className="font-bold text-lg text-white">{title}</h3>
-                  <p className="mt-2 text-[#c5d0de]">{d}</p>
+                  <h3 className="font-bold text-lg">{title}</h3>
+                  <p className="mt-2 text-muted">{d}</p>
                 </div>
               ))}
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            <div className="glass-strong glass-shine rounded-3xl p-6 sm:p-8 grid md:grid-cols-[auto_1fr] gap-5 items-start">
-              <Logo className="h-14 w-14" alt="" />
-              <div>
-                <div className="font-bold text-gold mb-2">{t(lang, "pitchTitle")}</div>
-                <blockquote className="text-lg leading-relaxed text-white">
-                  « {t(lang, "pitch")} »
-                </blockquote>
-              </div>
+        <section className="max-w-6xl mx-auto px-4 py-16">
+          <div className="card p-6 sm:p-8 flex flex-col sm:flex-row gap-5 items-start">
+            <Logo className="h-14 w-14 shrink-0" alt="" />
+            <div>
+              <div className="font-bold text-navy mb-2">{t(lang, "pitchTitle")}</div>
+              <blockquote className="text-lg leading-relaxed">« {t(lang, "pitch")} »</blockquote>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            <h2 className="text-3xl font-bold text-white">{t(lang, "plans")}</h2>
-            <p className="text-[#c5d0de] mb-6">{t(lang, "plansSub")}</p>
-            <div className="grid md:grid-cols-3 gap-3">
+        <section id="offres" className="bg-soft border-y border-line scroll-mt-20">
+          <div className="max-w-6xl mx-auto px-4 py-16">
+            <h2 className="text-3xl font-bold">{t(lang, "plans")}</h2>
+            <p className="text-muted mb-8">{t(lang, "plansSub")}</p>
+            <div className="grid md:grid-cols-3 gap-4">
               {Object.values(PLANS).map((p) => {
                 const featured = p.id === "standard";
                 return (
                   <div
                     key={p.id}
-                    className={`rounded-2xl p-6 flex flex-col transition-colors duration-200 ${
-                      featured ? "glass-gold" : "glass"
+                    className={`rounded-2xl p-6 flex flex-col bg-white ${
+                      featured ? "border-2 border-navy" : "border border-line"
                     }`}
                   >
                     {featured && (
-                      <div className="text-xs font-bold uppercase tracking-wide text-gold mb-2">
+                      <div className="text-xs font-bold uppercase tracking-wide text-navy mb-2">
                         {t(lang, "popular")}
                       </div>
                     )}
-                    <div className="text-white/75">{p.target}</div>
-                    <div className="text-2xl font-bold mt-1 text-white">{p.name}</div>
-                    <div className="mt-3 text-3xl font-bold text-white">
+                    <div className="text-muted">{p.target}</div>
+                    <div className="text-2xl font-bold mt-1">{p.name}</div>
+                    <div className="mt-3 text-3xl font-bold">
                       {formatFcfa(p.priceFcfa)}
-                      <span className="text-base font-semibold text-white/75"> / mois</span>
+                      <span className="text-base font-semibold text-muted"> / mois</span>
                     </div>
-                    <ul className="mt-4 space-y-2 flex-1 text-white/90">
+                    <ul className="mt-4 space-y-2 flex-1">
                       <li className="flex gap-2">
                         <IconCheck className="h-5 w-5 text-gold shrink-0 mt-0.5" />
                         {p.rdvPerMonth
@@ -237,65 +229,76 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
                         {p.stats ? "Chiffres du mois" : "Écran simple"}
                       </li>
                     </ul>
-                    <Link
-                      href="/login"
-                      className={`btn mt-6 ${featured ? "btn-gold" : "btn-glass"}`}
-                    >
+                    <Link href="/login" className={`btn mt-6 ${featured ? "btn-gold" : "btn-ghost"}`}>
                       {t(lang, "choose")}
                     </Link>
                   </div>
                 );
               })}
             </div>
-          </section>
-
-          <section className="max-w-6xl mx-auto px-4 pb-16">
-            <div className="glass-strong glass-shine rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white">{t(lang, "ctaReady")}</h2>
-                <p className="text-[#c5d0de] mt-2">
-                  {t(lang, "demoAccounts")}
-                  <br />
-                  Salon Awa Braids · 77 111 11 11 · PIN 1234
-                  <br />
-                  Garage Touba Auto · 77 222 22 22 · PIN 1234
-                </p>
-              </div>
-              <Link href="/login" className="btn btn-gold shrink-0">
-                {t(lang, "openPro")}
-              </Link>
-            </div>
-          </section>
-        </main>
-
-        <footer className="max-w-6xl mx-auto px-4 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
-          <div className="glass rounded-2xl py-8 flex flex-col items-center gap-3 text-[#c5d0de]">
-            <Logo className="h-10 w-10" alt="Assistant Bi" />
-            <p>Assistant Bi · Dakar · B2B</p>
-            <nav className="flex flex-wrap justify-center gap-4 text-sm">
-              <Link href="/legal/confidentialite" className="underline min-h-12 inline-flex items-center">
-                Confidentialité
-              </Link>
-              <Link href="/legal/cgu" className="underline min-h-12 inline-flex items-center">
-                CGU
-              </Link>
-              <Link href="/legal/cgv" className="underline min-h-12 inline-flex items-center">
-                CGV
-              </Link>
-              {supportWa ? (
-                <a
-                  href={`https://wa.me/${supportWa.replace(/\D/g, "")}`}
-                  className="underline min-h-12 inline-flex items-center"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {t(lang, "supportWa")}
-                </a>
-              ) : null}
-            </nav>
           </div>
-        </footer>
-      </div>
+        </section>
+
+        <section className="max-w-6xl mx-auto px-4 py-16">
+          <h2 className="text-3xl font-bold mb-8">{t(lang, "faqTitle")}</h2>
+          <div className="space-y-3">
+            {faqs.map(([q, a]) => (
+              <details key={q} className="card px-5 py-2">
+                <summary className="min-h-12 flex items-center font-bold cursor-pointer">
+                  {q}
+                </summary>
+                <p className="pb-4 text-muted">{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-navy text-white">
+          <div className="max-w-6xl mx-auto px-4 py-14 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <h2 className="text-2xl font-bold">{t(lang, "ctaReady")}</h2>
+              <p className="text-white/80 mt-2">
+                {t(lang, "demoAccounts")}
+                <br />
+                Salon Awa Braids · 77 111 11 11 · PIN 1234
+                <br />
+                Garage Touba Auto · 77 222 22 22 · PIN 1234
+              </p>
+            </div>
+            <Link href="/login" className="btn btn-gold shrink-0">
+              {t(lang, "openPro")}
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-line">
+        <div className="max-w-6xl mx-auto px-4 py-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] flex flex-col items-center gap-3 text-muted">
+          <Logo className="h-10 w-10" alt="Assistant Bi" />
+          <p>Assistant Bi · WhatsApp · B2B</p>
+          <nav className="flex flex-wrap justify-center gap-4 text-sm">
+            <Link href="/legal/confidentialite" className="underline min-h-12 inline-flex items-center">
+              {t(lang, "legalPrivacy")}
+            </Link>
+            <Link href="/legal/cgu" className="underline min-h-12 inline-flex items-center">
+              {t(lang, "legalCgu")}
+            </Link>
+            <Link href="/legal/cgv" className="underline min-h-12 inline-flex items-center">
+              {t(lang, "legalCgv")}
+            </Link>
+            {supportWa ? (
+              <a
+                href={`https://wa.me/${supportWa.replace(/\D/g, "")}`}
+                className="underline min-h-12 inline-flex items-center"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t(lang, "supportWa")}
+              </a>
+            ) : null}
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }

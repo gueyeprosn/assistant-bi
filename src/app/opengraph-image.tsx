@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Assistant Bi — secrétaire WhatsApp, Dakar";
+export const alt = "Assistant Bi — secrétaire WhatsApp";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -22,10 +22,10 @@ export default function Image() {
           ASSISTANT BI
         </div>
         <div style={{ color: "#FFFFFF", fontSize: 64, fontWeight: 700, marginTop: 16, lineHeight: 1.15 }}>
-          La secrétaire WhatsApp des professionnels de Dakar
+          La secrétaire WhatsApp de votre commerce
         </div>
         <div style={{ color: "#C5D0DE", fontSize: 28, marginTop: 28 }}>
-          Français + wolof · Wave · Orange Money
+          Français + wolof · 24h/24
         </div>
       </div>
     ),

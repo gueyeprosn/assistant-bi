@@ -13,14 +13,16 @@ Sync Impact Report
 
 ### I. Produit avant technologie
 Assistant Bi est une secrétaire virtuelle sur WhatsApp pour petits
-professionnels sénégalais, d’abord à Dakar. Le nom commercial MUST
-être exclusivement **Assistant Bi**. Il est INTERDIT d’utiliser
-SecrétAIRE Local, Assistant AI, Assistant Local, AI Secretary, ou
-toute autre variante. L’expérience MUST rester simple, fiable, rapide
-et humaine pour un smartphone Android entrée de gamme et un réseau 3G.
-Chaque décision technique MUST répondre à : cela rend-il le produit
-plus fiable pour ce professionnel ? Si elle ajoute de la complexité
-sans bénéfice utilisateur réel, elle MUST être rejetée.
+professionnels, sans ancrage géographique dans l’interface. Le nom
+commercial MUST être exclusivement **Assistant Bi**. Il est INTERDIT
+d’utiliser SecrétAIRE Local, Assistant AI, Assistant Local, AI
+Secretary, ou toute autre variante. L’expérience MUST rester simple,
+fiable, rapide et humaine pour un smartphone Android entrée de gamme
+et un réseau 3G. Ne pas afficher « Dakar » sur la landing ni les
+écrans marketing. Chaque décision technique MUST répondre à : cela
+rend-il le produit plus fiable pour ce professionnel ? Si elle ajoute
+de la complexité sans bénéfice utilisateur réel, elle MUST être
+rejetée.
 
 Priorité absolue : produit > fiabilité > sécurité > UX > performance
 > maintenabilité > IA > effets visuels.
@@ -75,8 +77,9 @@ Le passage PostgreSQL MUST rester compatible avec SQLite en
 développement.
 
 **Charte UI** : navy `#0B1F3A`, or `#C9A84C`, blanc. Landing marketing
-peut utiliser le verre dépoli. Le dashboard MUST rester fond clair,
-boutons ≥ 48 px, FR | WO jamais mélangés dans un même libellé.
+MUST rester fond clair, Swiss/Minimal, sans verre dépoli. Le dashboard
+MUST rester fond clair, boutons ≥ 48 px, FR | WO jamais mélangés dans
+un même libellé.
 
 **Hors MVP (INTERDIT d’implémenter maintenant)** : voix sortante,
 acomptes clients, PDF, SMS, comptabilité, multi-sites, fonctions

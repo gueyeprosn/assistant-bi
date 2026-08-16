@@ -12,7 +12,7 @@ const source = Source_Sans_3({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: "Assistant Bi — Secrétaire IA WhatsApp pour professionnels sénégalais",
+  title: "Assistant Bi — Secrétaire IA WhatsApp pour professionnels",
   description:
     "Le bot répond 24h/24 en français et wolof, prend les rendez-vous et rappelle les clients la veille. Tout se passe sur WhatsApp.",
   icons: {
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Assistant Bi",
-    description: "Secrétaire WhatsApp en français et wolof, pour les professionnels de Dakar.",
-    locale: "fr_SN",
+    description: "Secrétaire WhatsApp en français et wolof, pour tous les professionnels.",
+    locale: "fr",
     type: "website",
   },
 };

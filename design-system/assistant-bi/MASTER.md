@@ -8,10 +8,10 @@
 
 **Project:** Assistant Bi  
 **Generated:** 2026-08-16 (UI UX Pro Max v2)  
-**Category:** B2B SaaS · secrétaire IA WhatsApp · Dakar  
+**Category:** B2B SaaS · secrétaire IA WhatsApp  
 **Design Dials:** Variance 3/10 (Minimal) | Motion 2/10 (Subtle) | Density 3/10 (Spacious)
 
-**Override moteur :** le skill a proposé une palette « AI purple » (`#7C3AED`). **Interdite.** Charte métier verrouillée : navy confiance + or doux + blanc, pour un B2B sénégalais payant, smartphones entrée de gamme, 3G.
+**Override moteur :** le skill a proposé une palette « AI purple » (`#7C3AED`). **Interdite.** Charte métier verrouillée : navy confiance + or doux + blanc, pour un B2B payant, smartphones entrée de gamme, 3G.
 
 ---
 

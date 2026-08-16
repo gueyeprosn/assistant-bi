@@ -1,12 +1,12 @@
 # Assistant Bi
 
-Secrétaire virtuelle IA **WhatsApp** pour petits professionnels sénégalais (Dakar d’abord). Français + wolof. Pas d’application à installer : WhatsApp côté client, navigateur mobile côté patron.
+Secrétaire virtuelle IA **WhatsApp** pour petits professionnels, partout. Français + wolof. Pas d’application à installer : WhatsApp côté client, navigateur mobile côté patron.
 
 Le nom commercial est **Assistant Bi** uniquement. Ne pas écrire « SecrétAIRE Local » sur un livrable.
 
 ## Ce que fait le MVP
 
-- Landing marketing (glassmorphism, logos `public/brand/`)
+- Landing marketing (fond blanc Swiss/Minimal, logos `public/brand/`)
 - Simulateur WhatsApp `/demo` pour vendre sur le terrain **sans API Meta**
 - Moteur conversationnel FR/wolof : horaires, rendez-vous, devis texte, transfert au patron
 - Rappels J-1 + libération du créneau si annulation
@@ -93,7 +93,7 @@ Voir `.env.example`. Les plus utiles en local :
 ## Marque et UI
 
 - Navy `#0B1F3A` · or `#C9A84C` · blanc
-- Landing : verre dépoli (page `/` uniquement). Le dashboard reste fond blanc, boutons ≥ 48 px
+- Landing : fond blanc, navy/or, boutons ≥ 48 px. Le dashboard reste le même.
 - Logos : `public/brand/icon.png`, `logo.png`, `logo-reverse.png`, `logo-mono.png`
 - Charte : [design-system/assistant-bi/MASTER.md](design-system/assistant-bi/MASTER.md)
 - Overrides landing : [design-system/assistant-bi/pages/landing.md](design-system/assistant-bi/pages/landing.md)

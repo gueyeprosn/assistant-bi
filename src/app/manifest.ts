@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Assistant Bi",
     short_name: "Assistant Bi",
-    description: "Secrétaire WhatsApp pour professionnels sénégalais.",
+    description: "Secrétaire WhatsApp pour professionnels.",
     start_url: "/app",
     display: "standalone",
     background_color: "#ffffff",

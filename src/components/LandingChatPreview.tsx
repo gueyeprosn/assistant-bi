@@ -4,7 +4,7 @@ import { t } from "@/lib/i18n";
 
 export function LandingChatPreview({ lang }: { lang: Lang }) {
   return (
-    <div className="mx-auto w-full max-w-[360px] rounded-[28px] overflow-hidden bg-[#111] shadow-[0_24px_60px_rgba(0,0,0,0.45)]">
+    <div className="mx-auto w-full max-w-[360px] rounded-[28px] overflow-hidden bg-[#111] border border-line">
       <div className="bg-[#075e54] text-white px-4 py-3 flex items-center gap-3">
         <Image
           src="/brand/icon.png"
