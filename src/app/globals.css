@@ -12,6 +12,7 @@
   --line: #d7dee8;
   --soft: #f4f6f9;
   --wa: #075e54;
+  --destructive: #b42318;
 }
 
 @theme inline {
@@ -25,6 +26,7 @@
   --color-card: var(--card);
   --color-line: var(--line);
   --color-soft: var(--soft);
+  --color-destructive: var(--destructive);
   --font-sans: var(--font-source);
 }
 
@@ -64,6 +66,10 @@ a,
   color: #fff;
 }
 
+.btn-primary:hover {
+  background: var(--navy-2);
+}
+
 .btn-gold {
   background: var(--gold);
   color: var(--navy);
@@ -95,6 +101,13 @@ a,
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 16px;
+}
+
+.alert-error {
+  background: #fef3f2;
+  color: var(--destructive);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
 }
 
 /* Landing glassmorphism — ui-ux-pro-max (cette page seulement) */

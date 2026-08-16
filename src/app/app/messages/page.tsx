@@ -4,13 +4,23 @@ import { displayPhone } from "@/lib/phone";
 import { replyHandoff, resolveConversation, resumeBot } from "@/app/actions/business";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
+import Link from "next/link";
 
-export default async function MessagesPage() {
+export default async function MessagesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ f?: string }>;
+}) {
   const ctx = await requireOwner();
   if (!ctx) return null;
   const lang = await getLang();
+  const { f } = await searchParams;
+  const handoffOnly = f === "handoff";
   const conversations = await prisma.conversation.findMany({
-    where: { businessId: ctx.business.id, status: { not: "archived" } },
+    where: {
+      businessId: ctx.business.id,
+      status: handoffOnly ? "handoff" : { not: "archived" },
+    },
     include: {
       customer: true,
       messages: { orderBy: { createdAt: "desc" }, take: 8 },
@@ -24,6 +34,20 @@ export default async function MessagesPage() {
       <div>
         <h1 className="text-3xl font-bold text-navy">{t(lang, "messages")}</h1>
         <p className="text-muted mt-2">{t(lang, "messagesHelp")}</p>
+        <div className="mt-3 flex gap-2">
+          <Link
+            href="/app/messages"
+            className={`btn min-h-12 ${handoffOnly ? "btn-ghost" : "btn-primary"}`}
+          >
+            {t(lang, "filterAll")}
+          </Link>
+          <Link
+            href="/app/messages?f=handoff"
+            className={`btn min-h-12 ${handoffOnly ? "btn-primary" : "btn-ghost"}`}
+          >
+            {t(lang, "waitYou")}
+          </Link>
+        </div>
       </div>
       <div className="space-y-4">
         {conversations.length === 0 && <p className="text-muted">{t(lang, "noConv")}</p>}

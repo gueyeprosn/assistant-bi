@@ -149,6 +149,10 @@ export const DICT = {
     deleteAccount: "Supprimer mon compte",
     deleteAccountHelp: "Accès coupé tout de suite. Données conservées 30 jours puis effacées, sauf paiements.",
     undelivered: "Message non délivré",
+    hello: "Bonjour",
+    completeFiche: "Compléter la fiche",
+    actionNeeded: "À traiter maintenant",
+    filterAll: "Tout",
   },
   wo: {
     brand: "Assistant Bi",
@@ -298,6 +302,10 @@ export const DICT = {
     deleteAccount: "Dindi sama compte",
     deleteAccountHelp: "Dugg dafa tëj léegi. 30 bés, topp far, paiement yi des.",
     undelivered: "Baat bi demul",
+    hello: "Asalaam aleekum",
+    completeFiche: "Matël fiche bi",
+    actionNeeded: "Lii fàww tey",
+    filterAll: "Lépp",
   },
 } as const;
 

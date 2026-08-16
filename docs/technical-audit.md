@@ -23,7 +23,7 @@ Next.js 16 (App Router) · React 19 · TypeScript strict · Prisma 6 · SQLite l
 
 ## Risques restants
 
-- SQLite en production : à remplacer par PostgreSQL (Neon) avant le premier client payant.
+- SQLite en production : à remplacer par PostgreSQL (Neon) avant le premier client payant. Procédure : `docs/deployment.md`. `GET /api/health` ping la base.
 - Middleware ne vérifie pas la révocation : le layout `getSession()` le fait.
 - `bookSlot` + `isSlotFree` hors transaction dans le bot : double lecture, la transaction reste la source de vérité.
 - Pas de tests E2E Playwright : isolation salon/garage à rejouer à la main (quickstart).

@@ -1,14 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Source_Sans_3 } from "next/font/google";
 import "./globals.css";
+import { siteUrl } from "@/lib/site";
 
 const source = Source_Sans_3({
   variable: "--font-source",
   subsets: ["latin"],
   weight: ["400", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: "Assistant Bi — Secrétaire IA WhatsApp pour professionnels sénégalais",
   description:
     "Le bot répond 24h/24 en français et wolof, prend les rendez-vous et rappelle les clients la veille. Tout se passe sur WhatsApp.",
@@ -16,6 +19,18 @@ export const metadata: Metadata = {
     icon: "/brand/icon.png",
     apple: "/brand/icon.png",
   },
+  openGraph: {
+    title: "Assistant Bi",
+    description: "Secrétaire WhatsApp en français et wolof, pour les professionnels de Dakar.",
+    locale: "fr_SN",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0B1F3A",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

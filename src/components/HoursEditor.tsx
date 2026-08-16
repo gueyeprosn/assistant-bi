@@ -25,7 +25,7 @@ export function HoursEditor({ initial }: { initial: HoursMap }) {
         const end = slot?.[1] || "18:00";
         return (
           <div key={day} className="rounded-xl border border-line p-3 space-y-2">
-            <label className="flex items-center gap-3 font-bold min-h-11">
+            <label className="flex items-center gap-3 font-bold min-h-12">
               <input
                 type="checkbox"
                 className="h-5 w-5"

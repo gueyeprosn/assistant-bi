@@ -27,9 +27,7 @@ export function LangToggle({
           type="submit"
           className={`min-h-12 min-w-12 px-3 text-sm font-bold cursor-pointer transition-colors duration-200 ${
             lang === "fr"
-              ? glass
-                ? "bg-gold text-navy"
-                : "bg-navy text-white"
+              ? "bg-gold text-navy"
               : glass
                 ? "bg-transparent text-white hover:bg-white/10"
                 : "bg-white text-navy"
@@ -44,9 +42,7 @@ export function LangToggle({
           type="submit"
           className={`min-h-12 min-w-12 px-3 text-sm font-bold cursor-pointer transition-colors duration-200 ${
             lang === "wo"
-              ? glass
-                ? "bg-gold text-navy"
-                : "bg-navy text-white"
+              ? "bg-gold text-navy"
               : glass
                 ? "bg-transparent text-white hover:bg-white/10"
                 : "bg-white text-navy"

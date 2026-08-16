@@ -50,3 +50,16 @@ Aucun secret dans les logs. `.env` n’est pas git.
 ## SQLite local (dev)
 
 Fichier `dev.db` (gitignoré). Copie : fermer l’app, copier le fichier. Pas un plan de prod.
+
+## Passage PostgreSQL (sans casser le local)
+
+Le schéma Prisma n’utilise **pas** de SQL SQLite spécifique (`SELECT 1` marche des deux côtés). Pour un premier client payant :
+
+1. Créer une base Neon (ou équivalent) en `Africa` / Europe proche.
+2. Dans l’hébergeur uniquement : `DATABASE_URL=postgresql://...` et `APP_URL=https://...`
+3. Dans `prisma/schema.prisma`, changer `provider = "sqlite"` → `provider = "postgresql"` **sur la branche / le projet de prod** (garder SQLite en local).
+4. `npx prisma migrate deploy` (ou `db push` une fois sur l’instance vide).
+5. Seed uniquement en démo, jamais sur une prod déjà peuplée.
+6. Vérifier `GET /api/health` → `{ "ok": true }`.
+
+Deux fichiers schéma séparés sont possibles plus tard ; jusqu’au premier pilote, un changement de `provider` au déploiement suffit.

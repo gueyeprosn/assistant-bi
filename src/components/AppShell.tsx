@@ -34,7 +34,7 @@ export function AppShell({
       {impersonating && (
         <div className="bg-gold text-navy text-center text-sm py-2 px-3 font-semibold">
           <form action={endImpersonation}>
-            <button type="submit" className="underline min-h-11">
+            <button type="submit" className="underline min-h-12">
               {t(lang, "impersonate")}
             </button>
           </form>
@@ -52,7 +52,7 @@ export function AppShell({
           <div className="flex items-center gap-2">
             <LangToggle lang={lang} />
             <form action={logoutAction} className="hidden sm:block">
-              <button className="text-sm font-semibold text-muted min-h-11 px-2 cursor-pointer">
+              <button className="text-sm font-semibold text-muted min-h-12 px-2 cursor-pointer">
                 {t(lang, "quit")}
               </button>
             </form>

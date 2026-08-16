@@ -118,7 +118,7 @@ export default async function FichePage() {
                 <form action={toggleService}>
                   <input type="hidden" name="id" value={s.id} />
                   <input type="hidden" name="active" value={s.active ? "true" : "false"} />
-                  <button className="font-bold text-navy min-h-11">
+                  <button className="font-bold text-navy min-h-12">
                     {s.active ? t(lang, "hide") : t(lang, "show")}
                   </button>
                 </form>

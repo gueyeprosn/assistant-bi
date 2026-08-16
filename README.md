@@ -73,6 +73,7 @@ Voir `.env.example`. Les plus utiles en local :
 | Variable | Rôle |
 |---|---|
 | `DATABASE_URL` | SQLite `file:./dev.db` |
+| `APP_URL` | URL publique (sitemap, liens OG) |
 | `SESSION_SECRET` | Cookie de session |
 | `OPENAI_API_KEY` | Optionnel — reformulation |
 | `CRON_SECRET` | Protège `/api/cron/reminders` |

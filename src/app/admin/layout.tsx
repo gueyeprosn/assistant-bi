@@ -25,7 +25,7 @@ export default async function AdminLayout({
             </Link>
             <span className="text-muted font-semibold">Back-office</span>
             <form action={logoutAction}>
-              <button className="btn btn-ghost min-h-11">Quitter</button>
+              <button className="btn btn-ghost min-h-12">Quitter</button>
             </form>
           </div>
         </div>

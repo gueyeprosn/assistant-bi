@@ -182,7 +182,7 @@ export function WhatsAppSimulator({
                 key={h}
                 type="button"
                 onClick={() => void send(h)}
-                className="text-left text-sm border-2 border-line rounded-xl px-3 py-2 min-h-11 hover:bg-navy hover:text-white hover:border-navy"
+                className="text-left text-sm border-2 border-line rounded-xl px-3 py-2 min-h-12 hover:bg-navy hover:text-white hover:border-navy"
               >
                 {h}
               </button>

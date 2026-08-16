@@ -24,9 +24,7 @@ export default async function LoginPage({
         <form action={loginAction} className="w-full max-w-md card p-6 sm:p-8 space-y-4">
           <h1 className="text-2xl font-bold text-navy">{t(lang, "loginTitle")}</h1>
           <p className="text-muted">{t(lang, "loginHelp")}</p>
-          {error && (
-            <p className="bg-red-50 text-red-800 rounded-xl px-3 py-3">{error}</p>
-          )}
+          {error && <p className="alert-error">{error}</p>}
           <label className="block font-bold">
             {t(lang, "phone")}
             <input

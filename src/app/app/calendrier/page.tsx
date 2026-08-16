@@ -62,7 +62,7 @@ export default async function CalendarPage() {
               </span>
               <form action={deleteBlockedSlot}>
                 <input type="hidden" name="id" value={b.id} />
-                <button className="btn btn-ghost min-h-11">{t(lang, "release")}</button>
+                <button className="btn btn-ghost min-h-12">{t(lang, "release")}</button>
               </form>
             </li>
           ))}
