@@ -1,6 +1,8 @@
 import { AuthFrame } from "@/components/AuthFrame";
 import { SignupFicheForm } from "@/components/SignupFicheForm";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
+
+export const dynamic = "force-dynamic";
 
 export default async function SignupPage({
   searchParams,

@@ -1,4 +1,4 @@
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { LandingView } from "@/components/landing/LandingView";
 import { supportWhatsApp } from "@/lib/metrics";
 

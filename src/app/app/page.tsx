@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { addDays, formatDateTime, formatFcfa, planLabel, startOfDayDakar, statusLabel, toYmd } from "@/lib/format";
 import { rdvLimit } from "@/lib/plans";
 import { updateAppointmentStatus } from "@/app/actions/business";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { ficheCompleteness } from "@/lib/fiche";
 import { displayPhone } from "@/lib/phone";

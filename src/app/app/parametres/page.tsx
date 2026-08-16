@@ -1,7 +1,7 @@
 import { requireOwner } from "@/lib/auth";
 import { siteUrl } from "@/lib/site";
 import { saveWhatsAppSettings } from "@/app/actions/business";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CopyField } from "@/components/ui/CopyField";

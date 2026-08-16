@@ -7,7 +7,8 @@ export async function GET() {
   try {
     const body = await checkHealth();
     return NextResponse.json(body);
-  } catch {
+  } catch (error) {
+    console.error("[health]", error);
     return NextResponse.json({ ok: false, service: "assistant-bi" }, { status: 503 });
   }
 }

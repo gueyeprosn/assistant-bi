@@ -1,7 +1,7 @@
 import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
 

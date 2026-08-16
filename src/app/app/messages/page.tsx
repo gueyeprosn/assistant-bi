@@ -2,7 +2,7 @@ import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { displayPhone } from "@/lib/phone";
 import { replyHandoff, resolveConversation, resumeBot, takeHandoff } from "@/app/actions/business";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/PageHeader";

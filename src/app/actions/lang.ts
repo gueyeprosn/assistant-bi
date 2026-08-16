@@ -13,8 +13,3 @@ export async function setLangAction(formData: FormData): Promise<void> {
   });
   revalidatePath("/", "layout");
 }
-
-export async function getLang(): Promise<"fr" | "wo"> {
-  const store = await cookies();
-  return store.get("ab_lang")?.value === "wo" ? "wo" : "fr";
-}

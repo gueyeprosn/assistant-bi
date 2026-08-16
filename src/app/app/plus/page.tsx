@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { logoutAction, logoutEverywhereAction } from "@/app/actions/auth";
 import { IconBell, IconBot, IconCard, IconChart, IconGear, IconQuote } from "@/components/Icons";

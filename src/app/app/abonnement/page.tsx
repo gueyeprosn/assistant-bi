@@ -4,7 +4,7 @@ import { PLANS, getSubscriptionStatus, planPrice } from "@/lib/plans";
 import { formatDateTime, formatFcfa, planLabel, statusLabel } from "@/lib/format";
 import { merchantNumbers } from "@/lib/payments/manual";
 import { requestManualPayment, requestAccountDeletion } from "@/app/actions/business";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
 

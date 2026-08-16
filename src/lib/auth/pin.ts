@@ -1,4 +1,3 @@
-import { hash, verify } from "@node-rs/argon2";
 import bcrypt from "bcryptjs";
 
 const LOCK_AFTER = 5;
@@ -8,15 +7,40 @@ const DELAY_MS: Record<number, number> = {
   4: 2 * 60_000,
 };
 
-export async function hashPin(pin: string): Promise<{ hash: string; algo: "argon2id" }> {
-  const pinHash = await hash(pin, { memoryCost: 19456, timeCost: 2, outputLen: 32, parallelism: 1 });
-  return { hash: pinHash, algo: "argon2id" };
+type PinAlgo = "argon2id" | "bcrypt";
+
+async function tryArgon2() {
+  try {
+    return await import("@node-rs/argon2");
+  } catch {
+    return null;
+  }
+}
+
+export async function hashPin(pin: string): Promise<{ hash: string; algo: PinAlgo }> {
+  const argon2 = await tryArgon2();
+  if (argon2) {
+    try {
+      const pinHash = await argon2.hash(pin, {
+        memoryCost: 19456,
+        timeCost: 2,
+        outputLen: 32,
+        parallelism: 1,
+      });
+      return { hash: pinHash, algo: "argon2id" };
+    } catch (error) {
+      console.error("[pin] argon2 indisponible, repli bcrypt", error);
+    }
+  }
+  return { hash: await bcrypt.hash(pin, 10), algo: "bcrypt" };
 }
 
 export async function checkPin(pin: string, storedHash: string, algo = "bcrypt"): Promise<boolean> {
   if (algo === "argon2id" || storedHash.startsWith("$argon2")) {
+    const argon2 = await tryArgon2();
+    if (!argon2) return false;
     try {
-      return await verify(storedHash, pin);
+      return await argon2.verify(storedHash, pin);
     } catch {
       return false;
     }

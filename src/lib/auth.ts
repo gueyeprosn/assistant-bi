@@ -211,16 +211,24 @@ export async function loginWithPhonePin(phoneRaw: string, pin: string) {
   }
 
   if (user.pinAlgo !== "argon2id") {
-    const upgraded = await hashPin(pin);
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        pinHash: upgraded.hash,
-        pinAlgo: upgraded.algo,
-        failedPinAttempts: 0,
-        lockedUntil: null,
-      },
-    });
+    try {
+      const upgraded = await hashPin(pin);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          pinHash: upgraded.hash,
+          pinAlgo: upgraded.algo,
+          failedPinAttempts: 0,
+          lockedUntil: null,
+        },
+      });
+    } catch (error) {
+      console.error("[login] upgrade pin", error);
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { failedPinAttempts: 0, lockedUntil: null },
+      });
+    }
   } else {
     await prisma.user.update({
       where: { id: user.id },

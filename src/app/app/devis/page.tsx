@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { formatDateTime, formatFcfa } from "@/lib/format";
 import { canUseQuotes } from "@/lib/plans";
 import { createManualQuote } from "@/app/actions/business";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CopyQuote } from "@/components/ui/CopyQuote";

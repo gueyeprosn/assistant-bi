@@ -4,7 +4,7 @@ import { parseHours } from "@/lib/hours";
 import { formatFcfa } from "@/lib/format";
 import { saveFiche, saveService, toggleService } from "@/app/actions/business";
 import { HoursEditor } from "@/components/HoursEditor";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { ficheCompleteness } from "@/lib/fiche";
 import { parseFaq } from "@/lib/faq";
 import { t } from "@/lib/i18n";

@@ -3,7 +3,7 @@ import { BrandLockup } from "@/components/Logo";
 import { LangToggle } from "@/components/LangToggle";
 import { WhatsAppSimulator } from "@/components/WhatsAppSimulator";
 import { prisma } from "@/lib/db";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";

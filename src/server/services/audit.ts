@@ -6,12 +6,16 @@ export async function writeAudit(opts: {
   businessId?: string | null;
   metadata?: Record<string, unknown>;
 }) {
-  await prisma.auditLog.create({
-    data: {
-      action: opts.action,
-      actorUserId: opts.actorUserId ?? null,
-      businessId: opts.businessId ?? null,
-      metadataJson: JSON.stringify(opts.metadata ?? {}),
-    },
-  });
+  try {
+    await prisma.auditLog.create({
+      data: {
+        action: opts.action,
+        actorUserId: opts.actorUserId ?? null,
+        businessId: opts.businessId ?? null,
+        metadataJson: JSON.stringify(opts.metadata ?? {}),
+      },
+    });
+  } catch (error) {
+    console.error("[audit]", error);
+  }
 }

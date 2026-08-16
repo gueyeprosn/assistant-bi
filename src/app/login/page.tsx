@@ -1,20 +1,26 @@
 import Link from "next/link";
 import { AuthFrame } from "@/components/AuthFrame";
 import { loginAction } from "@/app/actions/auth";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
+import { safeAppPath } from "@/lib/login-url";
+
+export const dynamic = "force-dynamic";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; vue?: string }>;
+  searchParams: Promise<{ error?: string; vue?: string; next?: string }>;
 }) {
-  const { error, vue } = await searchParams;
+  const { error, vue, next } = await searchParams;
   const lang = await getLang();
   const adminVue = vue === "admin";
+  const nextPath = safeAppPath(next);
   return (
     <AuthFrame lang={lang}>
       <form action={loginAction} className="w-full max-w-md card p-6 sm:p-8 space-y-4">
+        {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
+        {adminVue ? <input type="hidden" name="vue" value="admin" /> : null}
         <h1 className="text-2xl font-bold text-navy">
           {adminVue ? "Console SaaS" : t(lang, "loginTitle")}
         </h1>

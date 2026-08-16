@@ -3,7 +3,7 @@ import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { canUseStats } from "@/lib/plans";
 import { formatFcfa } from "@/lib/format";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 
 export default async function StatsPage() {

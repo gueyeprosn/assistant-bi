@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { requireOwner } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
-import { getLang } from "@/app/actions/lang";
+import { getLang } from "@/lib/lang";
 import { getSubscriptionStatus } from "@/lib/plans";
 
 export default async function DashboardLayout({
