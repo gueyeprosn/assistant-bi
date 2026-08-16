@@ -50,6 +50,7 @@ Vitest (Node) : isolation tenant, lockout PIN, faits bot, overlap agenda, rappel
 |---|---|---|
 | Salon Awa Braids (Médina) | 77 111 11 11 | 1234 |
 | Garage Touba Auto (Pikine) | 77 222 22 22 | 1234 |
+| Remchou Shop (vente en ligne) | 77 666 66 66 | 1234 |
 | Admin | 77 000 00 00 | 0000 |
 
 | Page | URL |

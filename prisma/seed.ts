@@ -23,6 +23,16 @@ const GARAGE_HOURS = JSON.stringify({
   sat: [["08:00", "18:00"]],
 });
 
+const SHOP_HOURS = JSON.stringify({
+  sun: [["10:00", "18:00"]],
+  mon: [["09:00", "20:00"]],
+  tue: [["09:00", "20:00"]],
+  wed: [["09:00", "20:00"]],
+  thu: [["09:00", "20:00"]],
+  fri: [["09:00", "20:00"]],
+  sat: [["09:00", "21:00"]],
+});
+
 function at(daysFromNow: number, hour: number, min = 0) {
   const d = new Date();
   d.setDate(d.getDate() + daysFromNow);
@@ -187,6 +197,130 @@ async function main() {
     include: { services: true },
   });
 
+  const shop = await prisma.business.create({
+    data: {
+      name: "Remchou Shop",
+      slug: "remchou-shop",
+      category: "boutique",
+      neighborhood: "Livraison",
+      address: "Vente en ligne — livraison à domicile",
+      hoursJson: SHOP_HOURS,
+      greetingFr:
+        "Bonjour, ici Remchou Shop. Je suis Assistant Bi. Maison, beauté et divers : je donne les prix, la dispo et je prépare un devis WhatsApp.",
+      greetingWo:
+        "Asalaam aleekum, Remchou Shop la. Man Assistant Bi laa. Maison, beauté, divers : prijs, dispo, devis WhatsApp.",
+      defaultLang: "fr",
+      plan: "standard",
+      status: "active",
+      ownerPhone: "+221776666666",
+      waveNumber: "77 666 66 66",
+      orangeMoneyNumber: "77 666 66 66",
+      holidayPolicy: "special",
+      holidayHoursNote: "Livraison possible les jours fériés, délai +1 jour.",
+      confirmationMessage: "Commande notée. On vous confirme la livraison sur WhatsApp.",
+      faqJson: JSON.stringify([
+        {
+          q: "Vous livrez ?",
+          r: "Oui, livraison à domicile. Les frais dépendent du quartier. Demandez un devis pour le total articles + livraison.",
+        },
+        {
+          q: "Comment payer ?",
+          r: "Wave, Orange Money, ou paiement à la livraison.",
+        },
+        {
+          q: "Je peux échanger ?",
+          r: "Échange sous 7 jours si l’article n’a pas été utilisé et que l’emballage est intact.",
+        },
+      ]),
+      users: {
+        create: {
+          phone: "+221776666666",
+          pinHash: pinOwner,
+          pinAlgo: "bcrypt",
+          name: "Remchou",
+          role: "owner",
+        },
+      },
+      services: {
+        create: [
+          {
+            name: "Maison · Set de draps 2 places",
+            durationMin: 15,
+            priceFcfa: 12500,
+            description: "Coton, 2 places",
+            keywordsJson: JSON.stringify(["draps", "drap", "lit", "chambre", "maison", "linge"]),
+            sortOrder: 1,
+          },
+          {
+            name: "Maison · Coussin décoratif",
+            durationMin: 15,
+            priceFcfa: 4500,
+            description: "Coussin salon",
+            keywordsJson: JSON.stringify(["coussin", "déco", "deco", "maison", "salon"]),
+            sortOrder: 2,
+          },
+          {
+            name: "Maison · Panier de rangement",
+            durationMin: 15,
+            priceFcfa: 6000,
+            description: "Panier tressé",
+            keywordsJson: JSON.stringify(["panier", "rangement", "maison", "organisation"]),
+            sortOrder: 3,
+          },
+          {
+            name: "Beauté · Crème hydratante",
+            durationMin: 15,
+            priceFcfa: 7500,
+            description: "Crème visage et corps",
+            keywordsJson: JSON.stringify(["crème", "creme", "hydratante", "beauté", "beaute", "soin"]),
+            sortOrder: 4,
+          },
+          {
+            name: "Beauté · Huile de coco",
+            durationMin: 15,
+            priceFcfa: 3500,
+            description: "Huile capillaire et corps",
+            keywordsJson: JSON.stringify(["huile", "coco", "beauté", "beaute", "cheveux"]),
+            sortOrder: 5,
+          },
+          {
+            name: "Beauté · Parfum",
+            durationMin: 15,
+            priceFcfa: 15000,
+            description: "Eau de parfum 50 ml",
+            keywordsJson: JSON.stringify(["parfum", "odeur", "beauté", "beaute"]),
+            sortOrder: 6,
+          },
+          {
+            name: "Divers · Chargeur USB",
+            durationMin: 15,
+            priceFcfa: 4000,
+            description: "Chargeur téléphone",
+            keywordsJson: JSON.stringify(["chargeur", "usb", "téléphone", "telephone", "divers"]),
+            sortOrder: 7,
+          },
+          {
+            name: "Divers · Sac cabas",
+            durationMin: 15,
+            priceFcfa: 5500,
+            description: "Sac courses",
+            keywordsJson: JSON.stringify(["sac", "cabas", "divers", "courses"]),
+            sortOrder: 8,
+          },
+          {
+            name: "Divers · Gourde",
+            durationMin: 15,
+            priceFcfa: 4500,
+            description: "Gourde 750 ml",
+            keywordsJson: JSON.stringify(["gourde", "bouteille", "eau", "divers"]),
+            sortOrder: 9,
+          },
+        ],
+      },
+    },
+    include: { services: true },
+  });
+
   await prisma.user.create({
     data: {
       phone: "+221770000000",
@@ -218,6 +352,14 @@ async function main() {
       businessId: garage.id,
       phone: "+221775555555",
       name: "Ibrahima Fall",
+      language: "fr",
+    },
+  });
+  const aminata = await prisma.customer.create({
+    data: {
+      businessId: shop.id,
+      phone: "+221777777777",
+      name: "Aminata Dieng",
       language: "fr",
     },
   });
@@ -308,6 +450,24 @@ async function main() {
     },
   });
 
+  const draps = shop.services.find((s) => s.name.includes("draps"))!;
+  const creme = shop.services.find((s) => s.name.includes("Crème"))!;
+  const huile = shop.services.find((s) => s.name.includes("coco"))!;
+  await prisma.quote.create({
+    data: {
+      businessId: shop.id,
+      customerId: aminata.id,
+      linesJson: JSON.stringify([
+        { name: draps.name, qty: 1, priceFcfa: draps.priceFcfa },
+        { name: creme.name, qty: 1, priceFcfa: creme.priceFcfa },
+        { name: huile.name, qty: 2, priceFcfa: huile.priceFcfa },
+      ]),
+      totalFcfa: draps.priceFcfa + creme.priceFcfa + huile.priceFcfa * 2,
+      status: "sent",
+      textBody: `Devis — Remchou Shop\nClient : Aminata Dieng\n———\n• ${draps.name} — 12 500 F\n• ${creme.name} — 7 500 F\n• ${huile.name} × 2 — 7 000 F\n———\nTotal : 27 000 F\nValable 7 jours.`,
+    },
+  });
+
   await prisma.subscriptionPayment.create({
     data: {
       businessId: garage.id,
@@ -327,6 +487,7 @@ async function main() {
   console.log("Seed OK");
   console.log("Salon Awa Braids  → +221 77 111 11 11  PIN 1234");
   console.log("Garage Touba Auto → +221 77 222 22 22  PIN 1234");
+  console.log("Remchou Shop      → +221 77 666 66 66  PIN 1234");
   console.log("Admin Assistant Bi → +221 77 000 00 00  PIN 0000");
 }
 

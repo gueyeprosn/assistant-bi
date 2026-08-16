@@ -328,6 +328,8 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
               Salon Awa Braids · 77 111 11 11 · PIN 1234
               <br />
               Garage Touba Auto · 77 222 22 22 · PIN 1234
+              <br />
+              Remchou Shop · 77 666 66 66 · PIN 1234
             </p>
           </div>
         </section>

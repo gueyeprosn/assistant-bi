@@ -33,6 +33,7 @@ export function SignupFicheForm({ lang, error }: { lang: Lang; error?: string })
           <select name="category" required className="field mt-1">
             <option value="salon">{t(lang, "catSalon")}</option>
             <option value="garage">{t(lang, "catGarage")}</option>
+            <option value="boutique">{t(lang, "catShop")}</option>
             <option value="artisan">{t(lang, "catArtisan")}</option>
             <option value="infirmier">{t(lang, "catNurse")}</option>
             <option value="autre">{t(lang, "catOther")}</option>

@@ -2,7 +2,7 @@ import { parseFaqFields, type FaqItem } from "./faq";
 import { DEFAULT_WEEK_HOURS, parseHours, type HoursMap } from "./hours";
 import { isValidSnPhone } from "./phone";
 
-export const SIGNUP_CATEGORIES = ["salon", "garage", "artisan", "infirmier", "autre"] as const;
+export const SIGNUP_CATEGORIES = ["salon", "garage", "boutique", "artisan", "infirmier", "autre"] as const;
 export type SignupCategory = (typeof SIGNUP_CATEGORIES)[number];
 
 export const DEFAULT_LANGS = ["fr", "wo", "both"] as const;

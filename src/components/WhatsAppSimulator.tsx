@@ -11,6 +11,10 @@ const HINTS = [
   "Combien coûtent les braids longues ?",
   "Je veux un rendez-vous demain à 14h",
   "Ma voiture a un problème de démarrage",
+  "Vous vendez des draps ?",
+  "Combien le parfum ?",
+  "Je veux un devis crème et huile de coco",
+  "Vous livrez ?",
   "Fan ngeen nekk ?",
   "Ñaata lay jar tresses ?",
   "Dama bëgg rendez-vous suba",
@@ -170,8 +174,9 @@ export function WhatsAppSimulator({
             className="field"
           />
           <p className="text-xs text-muted">
-            Après un rendez-vous, ouvrez le dashboard du salon (
-            <code>77 111 11 11</code> / PIN <code>1234</code>) pour voir le créneau.
+            Après un rendez-vous ou un devis, ouvrez le dashboard du commerce (PIN{" "}
+            <code>1234</code>) : salon <code>77 111 11 11</code>, garage{" "}
+            <code>77 222 22 22</code>, Remchou Shop <code>77 666 66 66</code>.
           </p>
         </div>
         <div className="card p-4">
