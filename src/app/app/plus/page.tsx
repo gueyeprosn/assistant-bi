@@ -3,9 +3,11 @@ import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
 import { logoutAction, logoutEverywhereAction } from "@/app/actions/auth";
 import { IconBell, IconBot, IconCard, IconChart, IconQuote } from "@/components/Icons";
+import { supportWhatsApp } from "@/lib/metrics";
 
 export default async function PlusPage() {
   const lang = await getLang();
+  const wa = supportWhatsApp();
   const items = [
     { href: "/app/fiche", label: t(lang, "bot"), Icon: IconBot },
     { href: "/app/devis", label: t(lang, "quotes"), Icon: IconQuote },
@@ -49,6 +51,16 @@ export default async function PlusPage() {
           <Link href="/legal/cgv" className="underline min-h-12 inline-flex items-center">
             {t(lang, "legalCgv")}
           </Link>
+          {wa ? (
+            <a
+              href={`https://wa.me/${wa.replace(/\D/g, "")}`}
+              className="underline min-h-12 inline-flex items-center"
+              target="_blank"
+              rel="noreferrer"
+            >
+              {t(lang, "supportWa")}
+            </a>
+          ) : null}
         </div>
       </div>
     </div>

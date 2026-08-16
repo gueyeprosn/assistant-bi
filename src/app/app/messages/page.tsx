@@ -10,7 +10,7 @@ export default async function MessagesPage() {
   if (!ctx) return null;
   const lang = await getLang();
   const conversations = await prisma.conversation.findMany({
-    where: { businessId: ctx.business.id },
+    where: { businessId: ctx.business.id, status: { not: "archived" } },
     include: {
       customer: true,
       messages: { orderBy: { createdAt: "desc" }, take: 8 },

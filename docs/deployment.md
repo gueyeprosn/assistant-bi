@@ -35,9 +35,17 @@ Aucun secret dans les logs. `.env` n’est pas git.
 
 ## Alerting minimal MVP
 
-- Vue `/admin` : paiements pending > 24 h
+- Vue `/admin` : bandeau si paiements pending > 24 h (détail `/admin/support`)
 - Logs hébergeur : 5xx
 - Support WhatsApp humain pour le reste
+
+## Rétention (cron 03:00 UTC)
+
+`GET /api/cron/retention?secret=CRON_SECRET`
+
+- Conversations de plus de 12 mois : statut `archived`, texte masqué
+- Comptes `cancelled` dont `purgeAfter` est dépassé : PII effacée, **paiements conservés**
+- Journaux d’audit : non supprimés (24 mois minimum)
 
 ## SQLite local (dev)
 

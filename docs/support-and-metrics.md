@@ -7,6 +7,8 @@ Affiché sur la landing, `/app/plus`, `/admin/support`.
 
 Pas de ticket e-mail. Le commercial Dakar surveille le numéro.
 
+Guide à envoyer aux pilotes : [guide-pilote.md](./guide-pilote.md).
+
 ## Métriques dans `/admin`
 
 | Indicateur | Lecture MVP |

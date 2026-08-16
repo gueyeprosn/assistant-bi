@@ -17,7 +17,7 @@ import { PLANS } from "@/lib/plans";
 import { formatFcfa } from "@/lib/format";
 import { t, type Lang } from "@/lib/i18n";
 
-export function LandingView({ lang }: { lang: Lang }) {
+export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: string }) {
   const steps = [
     [t(lang, "how1t"), t(lang, "how1d"), IconChat],
     [t(lang, "how2t"), t(lang, "how2d"), IconBot],
@@ -282,6 +282,16 @@ export function LandingView({ lang }: { lang: Lang }) {
               <Link href="/legal/cgv" className="underline min-h-12 inline-flex items-center">
                 CGV
               </Link>
+              {supportWa ? (
+                <a
+                  href={`https://wa.me/${supportWa.replace(/\D/g, "")}`}
+                  className="underline min-h-12 inline-flex items-center"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t(lang, "supportWa")}
+                </a>
+              ) : null}
             </nav>
           </div>
         </footer>

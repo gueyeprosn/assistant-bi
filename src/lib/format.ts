@@ -74,6 +74,8 @@ export function statusLabel(status: string): string {
       return "Impayé";
     case "suspended":
       return "Suspendu";
+    case "cancelled":
+      return "Résilié";
     default:
       return status;
   }

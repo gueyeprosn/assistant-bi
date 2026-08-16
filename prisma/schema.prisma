@@ -67,6 +67,7 @@ model Business {
   defaultDurationMin Int       @default(60)
   cancelledAt        DateTime?
   purgeAfter         DateTime?
+  purgedAt           DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 

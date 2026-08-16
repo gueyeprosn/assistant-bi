@@ -21,6 +21,10 @@ Envoi : **3 tentatives**, backoff 0,5 s → 1 s → 2 s.
 
 Page `/statut`. Le bot répond : « Je rencontre un problème technique, réessayez dans un instant. » Pas de stack trace.
 
+## Rétention
+
+Cron quotidien 03:00 UTC : conversations > 12 mois archivées (texte masqué) ; comptes résiliés purgés après 30 jours ; paiements jamais effacés.
+
 ## Budget LLM
 
 Estimé ~0,002 USD / appel gpt-4o-mini. Compteur mensuel en mémoire processus (MVP) ; en prod viser un compteur persistant.

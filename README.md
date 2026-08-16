@@ -86,6 +86,7 @@ Voir `.env.example`. Les plus utiles en local :
 - [Confidentialité](/legal/confidentialite) · [CGU](/legal/cgu) · [CGV](/legal/cgv)
 - [Catalogue d’erreurs](docs/error-catalog.md) · [Résilience](docs/resilience.md)
 - [Go-live](docs/go-live-checklist.md) · [Déploiement](docs/deployment.md)
+- [Guide pilote](docs/guide-pilote.md)
 
 
 ## Marque et UI
@@ -106,6 +107,8 @@ PayDunya est stubbé (`src/lib/payments/paydunya.ts`) pour après NINEA/RCCM.
 Le webhook Meta est prêt mais inactif sans tokens : `POST /api/webhooks/whatsapp`.
 
 Rappels J-1 : `GET /api/cron/reminders?secret=CRON_SECRET` — cron Vercel `0 18 * * *` (18:00 UTC) dans `vercel.json`.
+
+Rétention : `GET /api/cron/retention?secret=CRON_SECRET` — tous les jours à 03:00 UTC (archive conversations > 12 mois, purge comptes résiliés après 30 j, paiements conservés).
 
 ## Spec-Driven Development ([Spec Kit](https://github.com/github/spec-kit))
 

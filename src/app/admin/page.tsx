@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { formatDateTime, formatFcfa, planLabel, statusLabel } from "@/lib/format";
 import { adminProductMetrics } from "@/lib/metrics";
+import Link from "next/link";
 import {
   confirmPayment,
   extendTrial,
@@ -30,6 +31,8 @@ export default async function AdminHome() {
     }),
     adminProductMetrics(),
   ]);
+
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   return (
     <div className="space-y-8">
@@ -61,6 +64,21 @@ export default async function AdminHome() {
         </div>
       </div>
 
+      {metrics.stalePayments > 0 && (
+        <div className="bg-gold/20 border border-gold rounded-2xl p-4">
+          <p className="font-bold text-navy">
+            {metrics.stalePayments} paiement{metrics.stalePayments > 1 ? "s" : ""} en attente depuis plus de 24 h
+          </p>
+          <p className="text-sm text-muted mt-1">
+            Confirmez ou refusez ci-dessous. Détail aussi dans{" "}
+            <Link href="/admin/support" className="underline">
+              Support
+            </Link>
+            .
+          </p>
+        </div>
+      )}
+
       {payments.length > 0 && (
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-navy">Paiements à confirmer</h2>
@@ -74,6 +92,7 @@ export default async function AdminHome() {
                 <div className="text-sm text-muted">
                   {formatFcfa(p.amountFcfa)} · {p.channel} · {p.proof || "sans preuve"} ·{" "}
                   {formatDateTime(p.createdAt)}
+                  {p.createdAt < dayAgo ? " · en retard (> 24 h)" : ""}
                 </div>
               </div>
               <div className="flex gap-2">
