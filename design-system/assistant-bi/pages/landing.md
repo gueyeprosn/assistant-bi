@@ -3,45 +3,35 @@
 Priorité sur MASTER pour la page `/` uniquement.
 
 Le dashboard produit reste **minimal, fond blanc**.  
-Cette page marketing suit le style **Minimalism & Swiss** (ui-ux-pro-max), conversion SaaS — **pas de verre, pas de dark**.
+Cette page marketing suit **Minimalism & Swiss** + un funnel conversion type SaaS WhatsApp
+([Wazzap AI](https://wazzap.ai/fr/home) : rythme hero / bénéfices / étapes / tarifs / FAQ).
 
-Inspiration : landing SaaS moderne, claire, hiérarchie nette, CTA visibles
-([référence UI/UX conversion](https://dribbble.com/services/122175-Modern-Landing-Page-UI-UX-Design)).
+**Ne pas copier** : faux avis, compteurs d’utilisateurs inventés, carousel, crédits IA, glass, purple.
 
 ## Style (cette page)
 
 | Token | Valeur |
 |-------|--------|
-| Fond | Blanc `#FFFFFF` + bandes `--soft` `#F4F6F9` |
-| Texte | Navy `#0B1F3A` / muted `#4A5A6D` |
-| CTA primaire | Or `#C9A84C` sur navy |
-| CTA secondaire | Ghost 2 px navy |
-| Cartes | Blanc, filet 1 px `#D7DEE8`, radius 16 px |
-| Bande finale | Navy plein (pas un thème sombre) |
+| Fond | Blanc + bandes `--soft` |
+| Titre hero | 3 lignes, dernière ligne or `#C9A84C` |
+| CTA | Or (primaire) · ghost navy |
+| Plan mis en avant | Carte navy, CTA or |
+| Bande finale | Navy plein |
 
-Palette skill `#2563EB` / `#EA580C` **refusée**. Navy + or inchangés.  
-Typo skill Plus Jakarta Sans **refusée**. Source Sans 3 (MASTER).  
-Glassmorphism **interdit** ici aussi.
+Palette skill `#2563EB` / `#EA580C` **refusée**. Source Sans 3.
 
 ## Pattern
 
-Hero + Features + CTA (skill) **sans vidéo**, **sans faux témoignages**.
-
-1. Nav blanche sticky + ancres (Marche, Tarifs) + 2 CTA
-2. Hero 2 colonnes : promesse + preview WhatsApp (LCP)
-3. Preuves produit (24h/24, FR+WO, Wave/OM)
-4. Comment ça marche (3 étapes numérotées)
-5. Fonctionnalités (6 cartes)
-6. Trois formules, Standard mis en avant
-7. FAQ courte (3 questions)
-8. CTA navy + comptes démo
-
-## Motion
-
-CSS only, 150 ms opacity. Pas d’orbes, pas de float, pas de GSAP.  
-`prefers-reduced-motion: reduce` déjà global.
+1. Nav sticky (Fonctions, Marche, Tarifs) + Commencer
+2. Hero split : gros titre 3 lignes + preview WhatsApp
+3. 4 bénéfices (« Et si vous aviez une secrétaire qui… »)
+4. Comment ça marche (4 étapes) + CTA
+5. Fonctions + mockup chat
+6. Confiance (PIN, isolation, pas de revente)
+7. 3 formules, Standard en navy
+8. FAQ (5)
+9. CTA navy
 
 ## Interdit
 
-Nav à 8 liens, slider, témoignages stock, logo Meta, anglais seul,  
-IA purple, verre dépoli, parallaxe, `translateY` au hover des boutons.
+Nav à 8 liens, témoignages stock, Dakar, logo Meta, parallaxe, verre, emojis-icônes.
