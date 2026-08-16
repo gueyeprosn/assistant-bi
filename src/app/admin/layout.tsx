@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { BrandLockup } from "@/components/Logo";
 import { logoutAction } from "@/app/actions/auth";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export default async function AdminLayout({
   children,
@@ -10,29 +10,30 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const ctx = await requireAdmin();
-  if (!ctx) redirect("/login");
+  if (!ctx) redirect("/login?vue=admin");
   if (ctx.session.impersonating) redirect("/app");
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b border-line bg-white">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/admin">
-            <BrandLockup className="h-9 max-w-[200px]" />
+    <div className="min-h-screen bg-soft">
+      <header className="bg-navy text-white">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+          <Link href="/admin" className="min-w-0">
+            <span className="block text-xs font-bold tracking-wide text-gold uppercase">Console SaaS</span>
+            <span className="block text-lg font-bold leading-tight truncate">Assistant Bi — opérateur</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/admin" className="font-semibold text-navy min-h-12 inline-flex items-center">
-              Pilotage
-            </Link>
-            <Link href="/admin/support" className="font-semibold text-navy min-h-12 inline-flex items-center">
-              Support
-            </Link>
-            <form action={logoutAction}>
-              <button className="btn btn-ghost min-h-12">Quitter</button>
-            </form>
-          </div>
+          <form action={logoutAction}>
+            <button type="submit" className="btn border-2 border-white text-white bg-transparent min-h-12">
+              Quitter
+            </button>
+          </form>
         </div>
       </header>
-      <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
+      <p className="bg-gold text-navy text-center font-semibold px-4 py-2">
+        Espace interne. Ce n’est pas le tableau de bord d’un client.
+      </p>
+      <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[220px_minmax(0,1fr)]">
+        <AdminNav />
+        <main className="px-4 py-6 pb-16">{children}</main>
+      </div>
     </div>
   );
 }

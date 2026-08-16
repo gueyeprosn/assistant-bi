@@ -16,7 +16,7 @@ export async function confirmPayment(formData: FormData): Promise<void> {
   if (!admin) return;
   const id = String(formData.get("id") || "");
   await confirmManualPayment({ paymentId: id, adminUserId: admin.user.id });
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function rejectPayment(formData: FormData): Promise<void> {
@@ -36,7 +36,7 @@ export async function rejectPayment(formData: FormData): Promise<void> {
       metadata: { paymentId: id },
     });
   }
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function setBusinessStatus(formData: FormData): Promise<void> {
@@ -54,7 +54,7 @@ export async function setBusinessStatus(formData: FormData): Promise<void> {
       actorUserId: admin.user.id,
     });
   }
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function impersonateBusiness(formData: FormData): Promise<void> {
@@ -143,7 +143,7 @@ export async function extendTrial(formData: FormData): Promise<void> {
     type: "trial_extend",
     actorUserId: admin.user.id,
   });
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
 export async function resetOwnerPin(formData: FormData): Promise<void> {
@@ -174,5 +174,5 @@ export async function resetOwnerPin(formData: FormData): Promise<void> {
     businessId: user.businessId,
     metadata: { phone },
   });
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
