@@ -1,0 +1,30 @@
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { requireOwner } from "@/lib/auth";
+import { AppShell } from "@/components/AppShell";
+import { getLang } from "@/app/actions/lang";
+import { getSubscriptionStatus } from "@/lib/plans";
+
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const ctx = await requireOwner();
+  if (!ctx) redirect("/login");
+  const lang = await getLang();
+  const access = getSubscriptionStatus(ctx.business);
+  const path = (await headers()).get("x-pathname") || "";
+  if (access.blocked && !path.startsWith("/app/abonnement")) {
+    redirect("/app/abonnement");
+  }
+  return (
+    <AppShell
+      businessName={ctx.business.name}
+      impersonating={ctx.session.impersonating}
+      lang={lang}
+    >
+      {children}
+    </AppShell>
+  );
+}

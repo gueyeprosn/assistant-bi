@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  phone             String    @unique
+  pinHash           String
+  pinAlgo           String    @default("bcrypt")
+  name              String
+  role              String    @default("owner")
+  businessId        String?
+  business          Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  failedPinAttempts Int       @default(0)
+  lockedUntil       DateTime?
+  createdAt         DateTime  @default(now())
+
+  sessions              Session[]
+  auditLogs             AuditLog[]             @relation("AuditActor")
+  impersonationsStarted ImpersonationSession[] @relation("ImpersonationAdmin")
+  paymentsConfirmed     SubscriptionPayment[]  @relation("PaymentConfirmer")
+  subscriptionEvents    SubscriptionEvent[]
+}
+
+model Session {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessId       String?
+  role             String
+  impersonationId  String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([userId, revokedAt])
+}
+
+model Business {
+  id                 String    @id @default(cuid())
+  name               String
+  slug               String    @unique
+  category           String
+  neighborhood       String
+  address            String
+  hoursJson          String
+  greetingFr         String
+  greetingWo         String
+  defaultLang        String    @default("fr")
+  plan               String    @default("trial")
+  status             String    @default("trial")
+  trialEndsAt        DateTime?
+  timezone           String    @default("Africa/Dakar")
+  latePolicy         String    @default("")
+  cancellationPolicy String    @default("")
+  minimumNoticeMin   Int       @default(60)
+  botTone            String    @default("simple")
+  waveNumber         String?
+  orangeMoneyNumber  String?
+  ownerPhone         String
+  slotStepMin        Int       @default(30)
+  defaultDurationMin Int       @default(60)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  users               User[]
+  services            Service[]
+  customers           Customer[]
+  conversations       Conversation[]
+  appointments        Appointment[]
+  quotes              Quote[]
+  blockedSlots        BlockedSlot[]
+  payments            SubscriptionPayment[]
+  auditLogs           AuditLog[]
+  impersonations      ImpersonationSession[]
+  subscriptionEvents  SubscriptionEvent[]
+}
+
+model Service {
+  id           String  @id @default(cuid())
+  businessId   String
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name         String
+  durationMin  Int
+  priceFcfa    Int
+  description  String  @default("")
+  keywordsJson String  @default("[]")
+  active       Boolean @default(true)
+  sortOrder    Int     @default(0)
+
+  appointments Appointment[]
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  phone      String
+  name       String?
+  language   String   @default("fr")
+  createdAt  DateTime @default(now())
+
+  conversations Conversation[]
+  appointments  Appointment[]
+  quotes        Quote[]
+
+  @@unique([businessId, phone])
+}
+
+model Conversation {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status     String   @default("bot")
+  lastIntent String?
+  language   String?
+  summary    String?
+  stateJson  String   @default("{}")
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+
+  messages Message[]
+  quotes   Quote[]
+
+  @@index([businessId, status])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction      String
+  text           String
+  language       String?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Appointment {
+  id             String    @id @default(cuid())
+  businessId     String
+  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  serviceId      String?
+  service        Service?  @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  startsAt       DateTime
+  endsAt         DateTime
+  status         String    @default("booked")
+  reminderSentAt DateTime?
+  confirmedAt    DateTime?
+  cancelledAt    DateTime?
+  cancelReason   String?
+  notes          String?
+  createdAt      DateTime  @default(now())
+
+  @@index([businessId, startsAt])
+  @@index([businessId, status])
+}
+
+model Quote {
+  id             String        @id @default(cuid())
+  businessId     String
+  business       Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  linesJson      String
+  totalFcfa      Int
+  note           String        @default("")
+  expiresAt      DateTime?
+  status         String        @default("draft")
+  textBody       String
+  createdAt      DateTime      @default(now())
+
+  @@index([businessId, createdAt])
+}
+
+model BlockedSlot {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  startsAt   DateTime
+  endsAt     DateTime
+  reason     String   @default("Indisponible")
+  createdAt  DateTime @default(now())
+
+  @@index([businessId, startsAt])
+}
+
+model SubscriptionPayment {
+  id                String    @id @default(cuid())
+  businessId        String
+  business          Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  amountFcfa        Int
+  channel           String
+  provider          String    @default("manual")
+  planId            String    @default("standard")
+  reference         String    @default("")
+  proof             String?
+  periodStart       DateTime
+  periodEnd         DateTime
+  status            String    @default("pending")
+  confirmedAt       DateTime?
+  rejectedAt        DateTime?
+  confirmedByUserId String?
+  confirmedBy       User?     @relation("PaymentConfirmer", fields: [confirmedByUserId], references: [id], onDelete: SetNull)
+  createdAt         DateTime  @default(now())
+}
+
+model SubscriptionEvent {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  type       String
+  payloadJson String  @default("{}")
+  actorUserId String?
+  actor      User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+
+  @@index([businessId, createdAt])
+}
+
+model AuditLog {
+  id           String    @id @default(cuid())
+  actorUserId  String?
+  actor        User?     @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  businessId   String?
+  business     Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  action       String
+  metadataJson String    @default("{}")
+  createdAt    DateTime  @default(now())
+
+  @@index([businessId, createdAt])
+  @@index([action, createdAt])
+}
+
+model ImpersonationSession {
+  id          String    @id @default(cuid())
+  adminUserId String
+  admin       User      @relation("ImpersonationAdmin", fields: [adminUserId], references: [id], onDelete: Cascade)
+  businessId  String
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  reason      String
+  sessionId   String?
+  startedAt   DateTime  @default(now())
+  endedAt     DateTime?
+}
+
+model WebhookEvent {
+  id           String    @id @default(cuid())
+  provider     String
+  externalId   String
+  payloadHash  String
+  status       String    @default("received")
+  receivedAt   DateTime  @default(now())
+  processedAt  DateTime?
+
+  @@unique([provider, externalId])
+}
