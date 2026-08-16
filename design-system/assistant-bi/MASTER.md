@@ -27,14 +27,14 @@
 
 | Role | Hex | CSS Variable | Usage |
 |------|-----|--------------|--------|
-| Primary | `#0B1F3A` | `--navy` / `--color-primary` | Boutons, titres, header |
-| Primary 2 | `#16345C` | `--navy-2` | Hover |
+| Primary | `#0F2B48` | `--navy` / `--color-primary` | Boutons, titres, header |
+| Primary 2 | `#1A4568` | `--navy-2` | Hover |
 | On Primary | `#FFFFFF` | `--color-on-primary` | Texte sur navy |
-| Accent | `#C9A84C` | `--gold` | Toggle FR/WO, CTA secondaire, liseré |
-| Accent 2 | `#D4B96A` | `--gold-2` | Hover or |
-| On Accent | `#0B1F3A` | `--color-on-accent` | Texte sur or |
+| Accent | `#D4AF37` | `--gold` | Toggle FR/WO, CTA secondaire, liseré |
+| Accent 2 | `#E0C15A` | `--gold-2` | Hover or |
+| On Accent | `#0F2B48` | `--color-on-accent` | Texte sur or |
 | Background | `#FFFFFF` | `--bg` | Fond unique (light only) |
-| Foreground | `#0B1F3A` | `--ink` | Texte |
+| Foreground | `#0F2B48` | `--ink` | Texte |
 | Muted | `#4A5A6D` | `--muted` | Secondaire |
 | Soft | `#F4F6F9` | `--soft` | Zones alternées |
 | Card | `#FFFFFF` | `--card` | Cartes |
@@ -49,7 +49,7 @@ WhatsApp `#075E54` = **simulateur de chat seulement**, jamais couleur de marque.
 Une seule famille UI (lisibilité, low-literacy) :
 
 - **UI :** Source Sans 3, 400 / 600 / 700
-- Corps **17px**, interligne **1.45**
+- Corps **18px**, interligne **1.5**
 - Titres 28–40px, gras, navy
 - Pas de serif décoratif dans le produit
 - Wordmark logo : Source Sans 3 Bold, tracking serré
@@ -79,22 +79,22 @@ Aucune ombre lourde. Filet 1px `--line` seulement (3G, Android bas de gamme).
 ### Buttons
 
 ```css
-.btn { min-height: 48px; padding: 0 1.15rem; border-radius: 12px; font-weight: 700; cursor: pointer; }
-.btn-primary { background: #0B1F3A; color: #fff; }
-.btn-gold { background: #C9A84C; color: #0B1F3A; }
-.btn-ghost { background: #fff; color: #0B1F3A; border: 2px solid #0B1F3A; }
+.btn { min-height: 52px; padding: 0 1.2rem; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.btn-primary { background: #0F2B48; color: #fff; }
+.btn-gold { background: #D4AF37; color: #0F2B48; }
+.btn-ghost { background: #fff; color: #0F2B48; border: 2px solid #0F2B48; }
 ```
 
 Pas de `translateY` au hover (évite les layout shifts). Hover = légère opacité ou navy-2.
 
 ### Cards / Inputs
 
-Bordure 1px `#D7DEE8`, fond blanc, focus outline 3px or. Inputs `min-height: 48px`, `font-size: 17px`.
+Bordure 1px `#D7DEE8`, fond blanc, focus outline 3px or. Inputs `min-height: 52px`, `font-size: 18px`.
 
 ### Navigation produit
 
 4 onglets bas uniquement : Accueil · Agenda · Messages · Plus.  
-Le reste (bot, devis, rappels, abonnement) = gros boutons dans Plus.
+Le reste (bot, devis, rappels, abonnement, réglages) = gros boutons dans Plus.
 
 ### Langue
 

@@ -102,7 +102,7 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
             >
               {t(lang, "space")}
             </Link>
-            <Link href="/demo" className="btn btn-gold">
+            <Link href="/inscription" className="btn btn-gold">
               {t(lang, "startFree")}
             </Link>
           </div>
@@ -124,11 +124,11 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
             </h1>
             <p className="mt-6 text-lg leading-relaxed max-w-xl text-muted">{t(lang, "heroSub")}</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <Link href="/demo" className="btn btn-gold">
+              <Link href="/inscription" className="btn btn-gold">
                 {t(lang, "startFree")}
               </Link>
-              <Link href="/login" className="btn btn-ghost">
-                {t(lang, "trial7")}
+              <Link href="/demo" className="btn btn-ghost">
+                {t(lang, "trySim")}
               </Link>
             </div>
             <ul className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm font-semibold text-muted">
@@ -193,7 +193,7 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
             ))}
           </ol>
           <Link href="/demo" className="btn btn-gold mt-8">
-            {t(lang, "startFree")}
+            {t(lang, "trySim")}
           </Link>
         </section>
 
@@ -284,7 +284,7 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
                         {p.stats ? "Chiffres du mois" : "Écran simple"}
                       </li>
                     </ul>
-                    <Link href="/login" className={`btn mt-6 ${featured ? "btn-gold" : "btn-ghost"}`}>
+                    <Link href="/inscription" className={`btn mt-6 ${featured ? "btn-gold" : "btn-ghost"}`}>
                       {t(lang, "choose")}
                     </Link>
                   </div>
@@ -315,7 +315,7 @@ export function LandingView({ lang, supportWa }: { lang: Lang; supportWa?: strin
               {t(lang, "noCommit")} · {t(lang, "noCard")} · {t(lang, "trial7")}
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/demo" className="btn btn-gold">
+              <Link href="/inscription" className="btn btn-gold">
                 {t(lang, "startFree")}
               </Link>
               <Link href="/login" className="btn border-2 border-white text-white bg-transparent">

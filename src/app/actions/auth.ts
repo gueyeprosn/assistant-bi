@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { clearSession, loginWithPhonePin, logoutEverywhere } from "@/lib/auth";
+import { clearSession, loginWithPhonePin, logoutEverywhere, registerOwner } from "@/lib/auth";
 
 export async function loginAction(formData: FormData) {
   const phone = String(formData.get("phone") || "");
@@ -12,6 +12,22 @@ export async function loginAction(formData: FormData) {
   }
   const user = "user" in result ? result.user : null;
   if (user?.role === "admin") redirect("/admin");
+  redirect("/app");
+}
+
+export async function signupAction(formData: FormData) {
+  const result = await registerOwner({
+    phoneRaw: String(formData.get("phone") || ""),
+    pin: String(formData.get("pin") || ""),
+    pinConfirm: String(formData.get("pinConfirm") || ""),
+    businessName: String(formData.get("businessName") || ""),
+    ownerName: String(formData.get("ownerName") || ""),
+    category: String(formData.get("category") || ""),
+    neighborhood: String(formData.get("neighborhood") || ""),
+  });
+  if ("error" in result && result.error) {
+    redirect(`/inscription?error=${encodeURIComponent(result.error)}`);
+  }
   redirect("/app");
 }
 

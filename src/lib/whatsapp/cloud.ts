@@ -1,7 +1,23 @@
+import { prisma } from "../db";
 import { splitWhatsAppChunks, type WhatsAppAdapter } from "./types";
 
 async function sleep(ms: number) {
   await new Promise((r) => setTimeout(r, ms));
+}
+
+async function resolveCreds(businessId: string) {
+  const envToken = process.env.WHATSAPP_ACCESS_TOKEN || "";
+  const envPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || "";
+  if (envToken && envPhoneId) return { token: envToken, phoneId: envPhoneId };
+  if (!businessId) return null;
+  const biz = await prisma.business.findUnique({
+    where: { id: businessId },
+    select: { whatsappToken: true, whatsappPhoneNumberId: true },
+  });
+  if (biz?.whatsappToken && biz.whatsappPhoneNumberId) {
+    return { token: biz.whatsappToken, phoneId: biz.whatsappPhoneNumberId };
+  }
+  return null;
 }
 
 async function postCloud(to: string, body: string, token: string, phoneId: string) {
@@ -25,10 +41,9 @@ async function postCloud(to: string, body: string, token: string, phoneId: strin
 
 export const cloudAdapter: WhatsAppAdapter = {
   name: "cloud",
-  async sendText(toPhone, text) {
-    const token = process.env.WHATSAPP_ACCESS_TOKEN;
-    const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    if (!token || !phoneId) {
+  async sendText(toPhone, text, businessId) {
+    const creds = await resolveCreds(businessId);
+    if (!creds) {
       console.warn("[whatsapp-cloud] tokens manquants, message non envoyé");
       return;
     }
@@ -37,7 +52,7 @@ export const cloudAdapter: WhatsAppAdapter = {
       let last: unknown;
       for (let attempt = 0; attempt < 3; attempt++) {
         try {
-          await postCloud(to, body, token, phoneId);
+          await postCloud(to, body, creds.token, creds.phoneId);
           last = null;
           break;
         } catch (e) {
@@ -51,11 +66,5 @@ export const cloudAdapter: WhatsAppAdapter = {
 };
 
 export function getWhatsAppAdapter(): WhatsAppAdapter {
-  if (process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) {
-    return cloudAdapter;
-  }
-  return {
-    name: "simulator",
-    async sendText() {},
-  };
+  return cloudAdapter;
 }

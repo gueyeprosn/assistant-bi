@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --navy: #0b1f3a;
-  --navy-2: #16345c;
-  --gold: #c9a84c;
-  --gold-2: #d4b96a;
+  --navy: #0f2b48;
+  --navy-2: #1a4568;
+  --gold: #d4af37;
+  --gold-2: #e0c15a;
   --bg: #ffffff;
-  --ink: #0b1f3a;
-  --muted: #4a5a6d;
+  --ink: #0f2b48;
+  --muted: #3d4f63;
   --card: #ffffff;
   --line: #d7dee8;
   --soft: #f4f6f9;
@@ -38,8 +38,8 @@ body {
 
 body {
   font-family: var(--font-sans), system-ui, sans-serif;
-  font-size: 17px;
-  line-height: 1.45;
+  font-size: 18px;
+  line-height: 1.5;
 }
 
 button,
@@ -53,11 +53,11 @@ a,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0 1.15rem;
+  min-height: 52px;
+  padding: 0 1.2rem;
   border-radius: 12px;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 1.05rem;
   text-align: center;
 }
 
@@ -83,12 +83,12 @@ a,
 
 .field {
   width: 100%;
-  min-height: 48px;
+  min-height: 52px;
   border: 2px solid var(--line);
   border-radius: 12px;
-  padding: 0.6rem 0.85rem;
+  padding: 0.65rem 0.9rem;
   background: #fff;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: var(--ink);
 }
 

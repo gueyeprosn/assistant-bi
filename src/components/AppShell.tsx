@@ -41,7 +41,7 @@ export function AppShell({
         </div>
       )}
       <header className="border-b border-line bg-white sticky top-0 z-20">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between gap-3">
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
           <Link href="/app" className="flex items-center gap-2 min-w-0">
             <Logo className="h-8 w-8 shrink-0" />
             <span className="truncate">
@@ -70,6 +70,7 @@ export function AppShell({
               "/app/relances",
               "/app/abonnement",
               "/app/stats",
+              "/app/parametres",
             ].some((p) => path === p || path.startsWith(`${p}/`));
             const active =
               l.href === "/app"

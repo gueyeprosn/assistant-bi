@@ -14,7 +14,7 @@ export function LangToggle({ lang }: { lang: Lang }) {
         <input type="hidden" name="lang" value="fr" />
         <button
           type="submit"
-          className={`min-h-12 min-w-12 px-3 text-sm font-bold cursor-pointer transition-colors duration-200 ${
+          className={`min-h-12 min-w-12 px-3 text-sm font-bold cursor-pointer ${
             lang === "fr" ? "bg-gold text-navy" : "bg-white text-navy"
           }`}
         >
@@ -25,7 +25,7 @@ export function LangToggle({ lang }: { lang: Lang }) {
         <input type="hidden" name="lang" value="wo" />
         <button
           type="submit"
-          className={`min-h-12 min-w-12 px-3 text-sm font-bold cursor-pointer transition-colors duration-200 ${
+          className={`min-h-12 min-w-12 px-3 text-sm font-bold cursor-pointer ${
             lang === "wo" ? "bg-gold text-navy" : "bg-white text-navy"
           }`}
         >

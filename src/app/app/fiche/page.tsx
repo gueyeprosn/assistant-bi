@@ -7,6 +7,7 @@ import { HoursEditor } from "@/components/HoursEditor";
 import { getLang } from "@/app/actions/lang";
 import { ficheCompleteness } from "@/lib/fiche";
 import { t } from "@/lib/i18n";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function FichePage() {
   const ctx = await requireOwner();
@@ -30,9 +31,9 @@ export default async function FichePage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title={t(lang, "bot")} help={t(lang, "botHelp")} />
       <div>
-        <h1 className="text-3xl font-bold text-navy">{t(lang, "bot")}</h1>
-        <p className="text-muted mt-2">
+        <p className="font-bold text-navy">
           {t(lang, "readyPct")} {ready.percent} %
         </p>
         <div className="mt-2 h-3 rounded-full bg-soft overflow-hidden">
@@ -40,6 +41,10 @@ export default async function FichePage() {
         </div>
       </div>
       <form action={saveFiche} className="card p-4 space-y-4">
+        <label className="block font-bold">
+          {t(lang, "name")}
+          <input name="name" defaultValue={ctx.business.name} className="field mt-1" />
+        </label>
         <label className="block font-bold">
           {t(lang, "address")}
           <input name="address" defaultValue={ctx.business.address} className="field mt-1" />
@@ -60,7 +65,7 @@ export default async function FichePage() {
           {t(lang, "greetWo")}
           <textarea name="greetingWo" rows={3} defaultValue={ctx.business.greetingWo} className="field mt-1 min-h-24" />
         </label>
-        <HoursEditor initial={hours} />
+        <HoursEditor initial={hours} label={t(lang, "hours")} />
         <label className="block font-bold">
           {t(lang, "latePolicy")}
           <textarea
@@ -101,8 +106,8 @@ export default async function FichePage() {
                 <input type="hidden" name="id" value={s.id} />
                 <input name="name" defaultValue={s.name} className="field" />
                 <div className="grid grid-cols-2 gap-2">
-                  <input name="priceFcfa" type="number" defaultValue={s.priceFcfa} className="field" />
-                  <input name="durationMin" type="number" defaultValue={s.durationMin} className="field" />
+                  <input name="priceFcfa" type="number" defaultValue={s.priceFcfa} className="field" aria-label={t(lang, "price")} />
+                  <input name="durationMin" type="number" defaultValue={s.durationMin} className="field" aria-label={t(lang, "minutes")} />
                 </div>
                 <input
                   name="keywords"

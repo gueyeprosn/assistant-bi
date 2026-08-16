@@ -23,6 +23,18 @@ export const EMPTY_HOURS: HoursMap = {
   sat: [],
 };
 
+const WEEKDAY_OPEN: [string, string][] = [["08:00", "18:00"]];
+
+export const DEFAULT_WEEK_HOURS: HoursMap = {
+  sun: [],
+  mon: WEEKDAY_OPEN,
+  tue: WEEKDAY_OPEN,
+  wed: WEEKDAY_OPEN,
+  thu: WEEKDAY_OPEN,
+  fri: WEEKDAY_OPEN,
+  sat: WEEKDAY_OPEN,
+};
+
 export function parseHours(json: string): HoursMap {
   try {
     const raw = JSON.parse(json) as Partial<HoursMap>;

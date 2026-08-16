@@ -63,6 +63,8 @@ model Business {
   waveNumber         String?
   orangeMoneyNumber  String?
   ownerPhone         String
+  whatsappToken      String    @default("")
+  whatsappPhoneNumberId String @default("")
   slotStepMin        Int       @default(30)
   defaultDurationMin Int       @default(60)
   cancelledAt        DateTime?

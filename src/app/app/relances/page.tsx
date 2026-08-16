@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function RelancesPage() {
   const ctx = await requireOwner();
@@ -34,10 +35,7 @@ export default async function RelancesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-navy">{t(lang, "remindersTitle")}</h1>
-        <p className="text-muted mt-2">{t(lang, "remindersHelp")}</p>
-      </div>
+      <PageHeader title={t(lang, "remindersTitle")} help={t(lang, "remindersHelp")} />
 
       <section className="card overflow-hidden">
         {upcoming.length === 0 ? (
@@ -46,7 +44,7 @@ export default async function RelancesPage() {
           <ul className="divide-y divide-line">
             {upcoming.map((a) => (
               <li key={a.id} className="px-4 py-4">
-                <div className="font-bold">{a.customer.name || a.customer.phone}</div>
+                <div className="font-bold text-lg">{a.customer.name || a.customer.phone}</div>
                 <div className="text-muted">
                   {formatDateTime(a.startsAt)}
                   {a.service ? ` · ${a.service.name}` : ""}
@@ -68,7 +66,7 @@ export default async function RelancesPage() {
           <ul className="card divide-y divide-line">
             {missed.map((a) => (
               <li key={a.id} className="px-4 py-4">
-                <div className="font-bold">{a.customer.name || a.customer.phone}</div>
+                <div className="font-bold text-lg">{a.customer.name || a.customer.phone}</div>
                 <div className="text-muted">{formatDateTime(a.startsAt)}</div>
               </li>
             ))}

@@ -44,6 +44,28 @@ export async function replyHandoff(formData: FormData): Promise<void> {
   revalidatePath("/app/messages");
 }
 
+export async function takeHandoff(formData: FormData): Promise<void> {
+  const ctx = await requireOwner();
+  if (!ctx) return;
+  const conversationId = String(formData.get("conversationId") || "");
+  const conv = await prisma.conversation.findFirst({
+    where: { id: conversationId, businessId: ctx.business.id },
+  });
+  if (!conv) return;
+  await prisma.conversation.update({
+    where: { id: conv.id },
+    data: { status: "handoff" },
+  });
+  await writeAudit({
+    action: "handoff_take",
+    actorUserId: ctx.user.id,
+    businessId: ctx.business.id,
+    metadata: { conversationId },
+  });
+  revalidatePath("/app/messages");
+  revalidatePath("/app");
+}
+
 export async function resumeBot(formData: FormData): Promise<void> {
   const ctx = await requireOwner();
   if (!ctx) return;
@@ -120,6 +142,7 @@ export async function deleteBlockedSlot(formData: FormData): Promise<void> {
 export async function saveFiche(formData: FormData): Promise<void> {
   const ctx = await requireOwner();
   if (!ctx) return;
+  const name = String(formData.get("name") || "").trim() || ctx.business.name;
   const greetingFr = String(formData.get("greetingFr") || "");
   const greetingWo = String(formData.get("greetingWo") || "");
   const address = String(formData.get("address") || "");
@@ -131,6 +154,7 @@ export async function saveFiche(formData: FormData): Promise<void> {
   await prisma.business.update({
     where: { id: ctx.business.id },
     data: {
+      name,
       greetingFr,
       greetingWo,
       address,
@@ -142,6 +166,27 @@ export async function saveFiche(formData: FormData): Promise<void> {
     },
   });
   revalidatePath("/app/fiche");
+}
+
+export async function saveWhatsAppSettings(formData: FormData): Promise<void> {
+  const ctx = await requireOwner();
+  if (!ctx) return;
+  const token = String(formData.get("whatsappToken") || "").trim();
+  const phoneId = String(formData.get("whatsappPhoneNumberId") || "").trim();
+  await prisma.business.update({
+    where: { id: ctx.business.id },
+    data: {
+      whatsappPhoneNumberId: phoneId,
+      ...(token ? { whatsappToken: token } : {}),
+    },
+  });
+  await writeAudit({
+    action: "whatsapp_settings",
+    actorUserId: ctx.user.id,
+    businessId: ctx.business.id,
+    metadata: { hasToken: Boolean(token || ctx.business.whatsappToken), hasPhoneId: Boolean(phoneId) },
+  });
+  revalidatePath("/app/parametres");
 }
 
 export async function saveService(formData: FormData): Promise<void> {

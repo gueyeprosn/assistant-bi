@@ -6,6 +6,8 @@ import { canUseQuotes } from "@/lib/plans";
 import { createManualQuote } from "@/app/actions/business";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { CopyQuote } from "@/components/ui/CopyQuote";
 
 export default async function QuotesPage() {
   const ctx = await requireOwner();
@@ -29,11 +31,11 @@ export default async function QuotesPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-3xl font-bold text-navy">{t(lang, "quotes")}</h1>
+      <PageHeader title={t(lang, "quotes")} help={t(lang, "quoteHelp")} />
       {!allowed ? (
         <div className="card p-5">
           <p className="text-muted">{t(lang, "quotesLocked")}</p>
-          <Link href="/app/abonnement" className="btn btn-primary mt-4 inline-flex">
+          <Link href="/app/abonnement" className="btn btn-primary mt-4 inline-flex w-full">
             {t(lang, "seePlans")}
           </Link>
         </div>
@@ -66,13 +68,22 @@ export default async function QuotesPage() {
           ) : (
             <ul className="space-y-3">
               {quotes.map((q) => (
-                <li key={q.id} className="card p-4">
+                <li key={q.id} className="card p-4 space-y-3">
                   <div className="flex justify-between gap-2 font-bold">
                     <span>{q.customer.name || q.customer.phone}</span>
                     <span>{formatFcfa(q.totalFcfa)}</span>
                   </div>
-                  <pre className="mt-2 whitespace-pre-wrap font-sans text-muted">{q.textBody}</pre>
-                  <div className="text-sm text-muted mt-2">{formatDateTime(q.createdAt)}</div>
+                  <pre className="whitespace-pre-wrap font-sans text-navy bg-soft rounded-xl px-3 py-3">
+                    {q.textBody}
+                  </pre>
+                  <CopyQuote
+                    text={q.textBody}
+                    phone={q.customer.phone}
+                    copyLabel={t(lang, "copyQuote")}
+                    copiedLabel={t(lang, "copied")}
+                    sendLabel={t(lang, "sendWa")}
+                  />
+                  <div className="text-sm text-muted">{formatDateTime(q.createdAt)}</div>
                 </li>
               ))}
             </ul>

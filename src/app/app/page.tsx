@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { addDays, formatDateTime, formatFcfa, planLabel, startOfDayDakar, statusLabel } from "@/lib/format";
+import { addDays, formatDateTime, formatFcfa, planLabel, startOfDayDakar, statusLabel, toYmd } from "@/lib/format";
 import { rdvLimit } from "@/lib/plans";
 import { updateAppointmentStatus } from "@/app/actions/business";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
 import { ficheCompleteness } from "@/lib/fiche";
 import { displayPhone } from "@/lib/phone";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { KpiCard } from "@/components/ui/KpiCard";
+import { MiniBars } from "@/components/ui/MiniBars";
 
 export default async function TodayPage() {
   const ctx = await requireOwner();
@@ -16,9 +19,11 @@ export default async function TodayPage() {
   const biz = ctx.business;
   const start = startOfDayDakar(new Date());
   const end = addDays(start, 1);
+  const weekStart = addDays(start, -6);
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
   const firstName = ctx.user.name.split(/\s+/)[0] || ctx.user.name;
 
-  const [todayAppts, handoffs, monthCount, pendingPay, inboundToday, serviceCount, waiting] =
+  const [todayAppts, handoffs, monthCount, pendingPay, inboundToday, serviceCount, waiting, weekAppts, monthDone, monthNoShow] =
     await Promise.all([
       prisma.appointment.findMany({
         where: {
@@ -37,7 +42,7 @@ export default async function TodayPage() {
           businessId: biz.id,
           status: { not: "cancelled" },
           createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            gte: monthStart,
           },
         },
       }),
@@ -61,6 +66,20 @@ export default async function TodayPage() {
         orderBy: { updatedAt: "desc" },
         take: 5,
       }),
+      prisma.appointment.findMany({
+        where: {
+          businessId: biz.id,
+          startsAt: { gte: weekStart, lt: end },
+          status: { not: "cancelled" },
+        },
+        select: { startsAt: true },
+      }),
+      prisma.appointment.count({
+        where: { businessId: biz.id, status: "done", startsAt: { gte: monthStart } },
+      }),
+      prisma.appointment.count({
+        where: { businessId: biz.id, status: "no_show", startsAt: { gte: monthStart } },
+      }),
     ]);
 
   const ready = ficheCompleteness({
@@ -77,20 +96,30 @@ export default async function TodayPage() {
   const trialLeft = biz.trialEndsAt
     ? Math.max(0, Math.ceil((biz.trialEndsAt.getTime() - Date.now()) / 86400000))
     : null;
+  const absentDenom = monthDone + monthNoShow;
+  const absentPct = absentDenom ? `${Math.round((monthNoShow / absentDenom) * 100)} %` : "—";
+
+  const weekItems = Array.from({ length: 7 }, (_, i) => {
+    const day = addDays(weekStart, i);
+    const key = toYmd(day);
+    const value = weekAppts.filter((a) => toYmd(a.startsAt) === key).length;
+    const label = new Intl.DateTimeFormat("fr-FR", {
+      weekday: "short",
+      timeZone: "Africa/Dakar",
+    })
+      .format(day)
+      .replace(".", "");
+    return { label, value };
+  });
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-3xl font-bold text-navy">
-          {t(lang, "hello")} {firstName}
-        </h1>
-        <p className="text-muted mt-1">
-          {planLabel(biz.plan)} · {statusLabel(biz.status)}
-          {trialLeft !== null && biz.status === "trial"
-            ? ` · ${trialLeft} ${t(lang, "trialDays")}`
-            : ""}
-        </p>
-      </div>
+      <PageHeader
+        title={`${t(lang, "hello")} ${firstName}`}
+        help={`${planLabel(biz.plan)} · ${statusLabel(biz.status)}${
+          trialLeft !== null && biz.status === "trial" ? ` · ${trialLeft} ${t(lang, "trialDays")}` : ""
+        }`}
+      />
 
       {ready.percent < 80 && (
         <Link
@@ -116,11 +145,13 @@ export default async function TodayPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Stat n={inboundToday} label={t(lang, "messagesToday")} />
-        <Stat n={todayAppts.length} label={t(lang, "apptsToday")} />
-        <Stat n={handoffs} label={t(lang, "missed")} href="/app/messages?f=handoff" />
+      <div className="grid grid-cols-1 gap-3">
+        <KpiCard value={String(todayAppts.length)} label={t(lang, "apptsToday")} href="/app/calendrier" />
+        <KpiCard value={String(inboundToday)} label={t(lang, "messagesToday")} href="/app/messages" />
+        <KpiCard value={absentPct} label={t(lang, "absentRate")} />
       </div>
+
+      <MiniBars title={t(lang, "weekChart")} items={weekItems} />
 
       {waiting.length > 0 && (
         <section className="card overflow-hidden">
@@ -178,16 +209,6 @@ export default async function TodayPage() {
       </section>
     </div>
   );
-}
-
-function Stat({ n, label, href }: { n: number; label: string; href?: string }) {
-  const inner = (
-    <div className="card p-4">
-      <div className="text-4xl font-bold text-navy">{n}</div>
-      <div className="text-muted mt-1">{label}</div>
-    </div>
-  );
-  return href ? <Link href={href}>{inner}</Link> : inner;
 }
 
 function StatusBtn({ id, status, label }: { id: string; status: string; label: string }) {

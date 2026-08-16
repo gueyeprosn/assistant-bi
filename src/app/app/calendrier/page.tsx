@@ -1,9 +1,10 @@
 import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime, toYmd } from "@/lib/format";
 import { blockSlot, deleteBlockedSlot, updateAppointmentStatus } from "@/app/actions/business";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function CalendarPage() {
   const ctx = await requireOwner();
@@ -26,9 +27,17 @@ export default async function CalendarPage() {
     }),
   ]);
 
+  const groups = new Map<string, typeof appointments>();
+  for (const a of appointments) {
+    const key = toYmd(a.startsAt);
+    const list = groups.get(key) || [];
+    list.push(a);
+    groups.set(key, list);
+  }
+
   return (
     <div className="space-y-5">
-      <h1 className="text-3xl font-bold text-navy">{t(lang, "agenda")}</h1>
+      <PageHeader title={t(lang, "agenda")} help={t(lang, "agendaHelp")} />
 
       <form action={blockSlot} className="card p-4 space-y-3">
         <p className="font-bold">{t(lang, "blockSlot")}</p>
@@ -48,7 +57,7 @@ export default async function CalendarPage() {
         </div>
         <label className="block font-semibold">
           {t(lang, "reason")}
-          <input name="reason" placeholder="Tabaski" className="field mt-1" />
+          <input name="reason" className="field mt-1" />
         </label>
         <button className="btn btn-primary w-full">{t(lang, "block")}</button>
       </form>
@@ -57,7 +66,7 @@ export default async function CalendarPage() {
         <ul className="space-y-2">
           {blocked.map((b) => (
             <li key={b.id} className="card px-4 py-3 flex items-center justify-between gap-3">
-              <span>
+              <span className="min-w-0">
                 {b.reason} · {formatDateTime(b.startsAt)}
               </span>
               <form action={deleteBlockedSlot}>
@@ -69,28 +78,36 @@ export default async function CalendarPage() {
         </ul>
       )}
 
-      <ul className="card divide-y divide-line">
-        {appointments.length === 0 && (
-          <li className="px-4 py-8 text-muted">{t(lang, "noUpcoming")}</li>
-        )}
-        {appointments.map((a) => (
-          <li key={a.id} className="px-4 py-4 flex flex-wrap gap-3 items-center">
-            <div className="flex-1 min-w-0">
-              <div className="font-bold text-lg">{a.customer.name || a.customer.phone}</div>
-              <div className="text-muted">
-                {formatDateTime(a.startsAt)} · {a.service?.name || "—"}
-              </div>
-            </div>
-            {a.status !== "cancelled" && (
-              <form action={updateAppointmentStatus}>
-                <input type="hidden" name="id" value={a.id} />
-                <input type="hidden" name="status" value="cancelled" />
-                <button className="btn btn-ghost">{t(lang, "cancel")}</button>
-              </form>
-            )}
-          </li>
-        ))}
-      </ul>
+      {groups.size === 0 ? (
+        <p className="card px-4 py-8 text-muted">{t(lang, "noUpcoming")}</p>
+      ) : (
+        <div className="space-y-4">
+          {[...groups.entries()].map(([day, list]) => (
+            <section key={day} className="card overflow-hidden">
+              <h2 className="px-4 py-3 border-b border-line font-bold text-navy">{formatDate(list[0].startsAt)}</h2>
+              <ul className="divide-y divide-line">
+                {list.map((a) => (
+                  <li key={a.id} className="px-4 py-4 space-y-3">
+                    <div>
+                      <div className="font-bold text-lg">{a.customer.name || a.customer.phone}</div>
+                      <div className="text-muted">
+                        {formatDateTime(a.startsAt)} · {a.service?.name || "—"}
+                      </div>
+                    </div>
+                    {a.status !== "cancelled" && (
+                      <form action={updateAppointmentStatus}>
+                        <input type="hidden" name="id" value={a.id} />
+                        <input type="hidden" name="status" value="cancelled" />
+                        <button className="btn btn-ghost w-full">{t(lang, "cancel")}</button>
+                      </form>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

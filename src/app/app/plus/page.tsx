@@ -2,8 +2,9 @@ import Link from "next/link";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
 import { logoutAction, logoutEverywhereAction } from "@/app/actions/auth";
-import { IconBell, IconBot, IconCard, IconChart, IconQuote } from "@/components/Icons";
+import { IconBell, IconBot, IconCard, IconChart, IconGear, IconQuote } from "@/components/Icons";
 import { supportWhatsApp } from "@/lib/metrics";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function PlusPage() {
   const lang = await getLang();
@@ -13,15 +14,13 @@ export default async function PlusPage() {
     { href: "/app/devis", label: t(lang, "quotes"), Icon: IconQuote },
     { href: "/app/relances", label: t(lang, "reminders"), Icon: IconBell },
     { href: "/app/abonnement", label: t(lang, "billing"), Icon: IconCard },
+    { href: "/app/parametres", label: t(lang, "settings"), Icon: IconGear },
     { href: "/app/stats", label: t(lang, "stats"), Icon: IconChart },
   ];
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-3xl font-bold text-navy">{t(lang, "moreTitle")}</h1>
-        <p className="text-muted mt-1">{t(lang, "moreHelp")}</p>
-      </div>
+      <PageHeader title={t(lang, "moreTitle")} help={t(lang, "moreHelp")} />
       <div className="grid gap-3">
         {items.map((item) => (
           <Link

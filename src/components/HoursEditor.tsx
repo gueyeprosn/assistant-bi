@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DAY_LABELS_FR, type DayKey, type HoursMap } from "@/lib/hours";
 
-export function HoursEditor({ initial }: { initial: HoursMap }) {
+export function HoursEditor({ initial, label = "Horaires" }: { initial: HoursMap; label?: string }) {
   const [hours, setHours] = useState<HoursMap>(initial);
   const ordered: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
@@ -17,7 +17,7 @@ export function HoursEditor({ initial }: { initial: HoursMap }) {
   return (
     <div className="space-y-3">
       <input type="hidden" name="hoursJson" value={JSON.stringify(hours)} />
-      <p className="font-bold">Horaires</p>
+      <p className="font-bold">{label}</p>
       {ordered.map((day) => {
         const slot = hours[day]?.[0];
         const open = Boolean(slot);

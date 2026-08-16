@@ -6,6 +6,7 @@ import { merchantNumbers } from "@/lib/payments/manual";
 import { requestManualPayment, requestAccountDeletion } from "@/app/actions/business";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default async function BillingPage() {
   const ctx = await requireOwner();
@@ -22,7 +23,7 @@ export default async function BillingPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-3xl font-bold text-navy">{t(lang, "billing")}</h1>
+      <PageHeader title={t(lang, "billing")} help={t(lang, "payHelp")} />
       {access.blocked && (
         <div className="card px-4 py-3 bg-gold/15 font-medium">{t(lang, "subscriptionBlocked")}</div>
       )}
@@ -32,32 +33,47 @@ export default async function BillingPage() {
           {planLabel(ctx.business.plan)} · {statusLabel(ctx.business.status)}
         </p>
         {ctx.business.trialEndsAt && ctx.business.status === "trial" && (
-          <p className="mt-2">
-            {ctx.business.trialEndsAt.toLocaleDateString("fr-FR")}
-          </p>
+          <p className="mt-2">{ctx.business.trialEndsAt.toLocaleDateString("fr-FR")}</p>
         )}
       </div>
 
       <div className="grid gap-3">
-        {Object.values(PLANS).map((p) => (
-          <form key={p.id} action={requestManualPayment} className="card p-4 space-y-3">
-            <input type="hidden" name="plan" value={p.id} />
-            <div className="text-xl font-bold">{p.name}</div>
-            <div className="text-2xl font-bold text-navy">{formatFcfa(p.priceFcfa)} / mois</div>
-            <p className="text-muted">{p.target}</p>
-            <select name="channel" className="field">
-              <option value="wave">Wave</option>
-              <option value="orange_money">Orange Money</option>
-            </select>
-            <button className="btn btn-primary w-full">{t(lang, "payThis")}</button>
-          </form>
-        ))}
+        {Object.values(PLANS).map((p) => {
+          const featured = p.id === "standard";
+          return (
+            <form
+              key={p.id}
+              action={requestManualPayment}
+              className={`card p-4 space-y-3 ${featured ? "border-2 border-navy" : ""}`}
+            >
+              <input type="hidden" name="plan" value={p.id} />
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-xl font-bold">{p.name}</div>
+                {featured ? (
+                  <span className="bg-gold text-navy text-sm font-bold px-2 py-1 rounded-lg">
+                    {t(lang, "popular")}
+                  </span>
+                ) : null}
+              </div>
+              <div className="text-3xl font-bold text-navy">{formatFcfa(p.priceFcfa)}</div>
+              <p className="text-muted">/ mois · {p.target}</p>
+              <div className="grid grid-cols-1 gap-2">
+                <button name="channel" value="wave" className="btn btn-primary w-full">
+                  {t(lang, "payWave")}
+                </button>
+                <button name="channel" value="orange_money" className="btn btn-ghost w-full">
+                  {t(lang, "payOm")}
+                </button>
+              </div>
+            </form>
+          );
+        })}
       </div>
 
       <div className="rounded-2xl bg-navy text-white p-5 space-y-2">
         <p className="text-lg font-bold">Wave / Orange Money</p>
         <p>
-          {t(lang, "payHelp")} {formatFcfa(amount)} · Wave {merchants.wave} · OM {merchants.orange}
+          {formatFcfa(amount)} · Wave {merchants.wave} · OM {merchants.orange}
         </p>
       </div>
 
@@ -70,7 +86,7 @@ export default async function BillingPage() {
           {payments.map((p) => (
             <li key={p.id} className="px-4 py-3 flex justify-between gap-2">
               <span className="font-semibold">
-                {formatFcfa(p.amountFcfa)} · {p.channel}
+                {formatFcfa(p.amountFcfa)} · {p.channel === "orange_money" ? "Orange Money" : "Wave"}
               </span>
               <span className="text-muted">{formatDateTime(p.createdAt)}</span>
             </li>
