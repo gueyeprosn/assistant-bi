@@ -13,6 +13,25 @@ export const DAY_LABELS_FR: Record<DayKey, string> = {
 
 export type HoursMap = Record<DayKey, [string, string][]>;
 
+/** Créneaux 24 h, pas de 30 min (00:00 → 23:30). */
+export const HOUR_OPTIONS_24: string[] = Array.from({ length: 48 }, (_, i) => {
+  const h = Math.floor(i / 2);
+  const m = i % 2 === 0 ? "00" : "30";
+  return `${String(h).padStart(2, "0")}:${m}`;
+});
+
+export function formatHm24(hm: string): string {
+  const { h, m } = parseHm(hm);
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return hm;
+  return `${String(h).padStart(2, "0")}:${String(Number.isFinite(m) ? m : 0).padStart(2, "0")}`;
+}
+
+export function hourSelectOptions(current: string): string[] {
+  const value = formatHm24(current);
+  if (!value || HOUR_OPTIONS_24.includes(value)) return HOUR_OPTIONS_24;
+  return [...HOUR_OPTIONS_24, value].sort();
+}
+
 export const EMPTY_HOURS: HoursMap = {
   sun: [],
   mon: [],
@@ -52,7 +71,7 @@ export function hoursToText(hours: HoursMap, lang: "fr" | "wo"): string {
     if (!slots.length) {
       lines.push(lang === "wo" ? `${label} : dafa tëj` : `${label} : fermé`);
     } else {
-      const range = slots.map(([a, b]) => `${a.replace(":", "h")} – ${b.replace(":", "h")}`).join(", ");
+      const range = slots.map(([a, b]) => `${formatHm24(a)} – ${formatHm24(b)} GMT`).join(", ");
       lines.push(`${label} : ${range}`);
     }
   });
@@ -78,7 +97,7 @@ export function formatHoursCompact(hours: HoursMap): string {
   const groups: { days: DayKey[]; slots: string }[] = [];
   (["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as DayKey[]).forEach((day) => {
     const slotStr = hours[day].length
-      ? hours[day].map(([a, b]) => `${a.replace(":", "h")}–${b.replace(":", "h")}`).join(", ")
+      ? hours[day].map(([a, b]) => `${formatHm24(a)}–${formatHm24(b)} GMT`).join(", ")
       : "fermé";
     const last = groups[groups.length - 1];
     if (last && last.slots === slotStr) last.days.push(day);

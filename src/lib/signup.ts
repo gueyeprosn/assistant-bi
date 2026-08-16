@@ -19,7 +19,7 @@ export type SignupFiche = {
   pinConfirm: string;
   businessName: string;
   ownerName: string;
-  category: SignupCategory;
+  category: string;
   neighborhood: string;
   address: string;
   secondaryPhoneRaw: string;
@@ -39,6 +39,10 @@ export type SignupFiche = {
 
 export function isSignupCategory(value: string): value is SignupCategory {
   return (SIGNUP_CATEGORIES as readonly string[]).includes(value);
+}
+
+export function normalizeSignupCategory(raw: string): string {
+  return raw.trim().replace(/\s+/g, " ").slice(0, 48);
 }
 
 export function isDefaultLang(value: string): value is DefaultLang {
@@ -98,7 +102,7 @@ function hoursJsonOrDefault(raw: string): string {
 export function parseSignupForm(form: FormData): { ok: true; data: SignupFiche } | { ok: false; error: string } {
   const businessName = String(form.get("businessName") || "").trim();
   const ownerName = String(form.get("ownerName") || "").trim() || businessName;
-  const categoryRaw = String(form.get("category") || "");
+  const category = normalizeSignupCategory(String(form.get("category") || ""));
   const address = String(form.get("address") || "").trim();
   const neighborhood = String(form.get("neighborhood") || "").trim() || address;
   const phoneRaw = String(form.get("phone") || "").trim();
@@ -121,8 +125,8 @@ export function parseSignupForm(form: FormData): { ok: true; data: SignupFiche }
   if (!businessName || businessName.length < 2) {
     return { ok: false, error: "Indiquez le nom de l’établissement." };
   }
-  if (!isSignupCategory(categoryRaw)) {
-    return { ok: false, error: "Choisissez votre métier." };
+  if (category.length < 2) {
+    return { ok: false, error: "Indiquez votre métier." };
   }
   if (!address) {
     return { ok: false, error: "Indiquez l’adresse complète." };
@@ -157,7 +161,7 @@ export function parseSignupForm(form: FormData): { ok: true; data: SignupFiche }
       pinConfirm,
       businessName,
       ownerName,
-      category: categoryRaw,
+      category,
       neighborhood,
       address,
       secondaryPhoneRaw,

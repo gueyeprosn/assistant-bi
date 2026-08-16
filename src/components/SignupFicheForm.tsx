@@ -30,24 +30,36 @@ export function SignupFicheForm({ lang, error }: { lang: Lang; error?: string })
         </label>
         <label className="block font-bold">
           {t(lang, "category")}
-          <select name="category" required className="field mt-1">
-            <option value="salon">{t(lang, "catSalon")}</option>
-            <option value="garage">{t(lang, "catGarage")}</option>
-            <option value="boutique">{t(lang, "catShop")}</option>
-            <option value="artisan">{t(lang, "catArtisan")}</option>
-            <option value="infirmier">{t(lang, "catNurse")}</option>
-            <option value="autre">{t(lang, "catOther")}</option>
-          </select>
+          <input
+            name="category"
+            required
+            minLength={2}
+            maxLength={48}
+            list="metiers-suggestions"
+            placeholder={t(lang, "categoryPlaceholder")}
+            className="field mt-1"
+            autoComplete="off"
+          />
+          <datalist id="metiers-suggestions">
+            <option value="Coiffure / salon" />
+            <option value="Garage" />
+            <option value="Boutique / vente en ligne" />
+            <option value="Artisan bâtiment" />
+            <option value="Infirmier / infirmière" />
+          </datalist>
+          <span className="block mt-1 font-normal text-muted">{t(lang, "categoryHelp")}</span>
         </label>
         <label className="block font-bold">
           {t(lang, "waBotNumber")}
-          <span className="mt-1 flex gap-2">
-            <span className="field w-24 flex items-center justify-center font-bold shrink-0">+221</span>
+          <span className="mt-1 flex gap-2 items-stretch">
+            <span className="inline-flex w-[5.5rem] shrink-0 items-center justify-center rounded-xl border-2 border-line bg-soft font-bold">
+              +221
+            </span>
             <input
               name="phone"
               required
               placeholder="77 111 11 11"
-              className="field"
+              className="field min-w-0 flex-1"
               inputMode="tel"
               autoComplete="tel"
             />
@@ -74,7 +86,14 @@ export function SignupFicheForm({ lang, error }: { lang: Lang; error?: string })
         <h2 className="text-xl font-bold text-navy">
           <span className="text-gold">1.</span> {t(lang, "sectionHours")}
         </h2>
-        <HoursEditor initial={DEFAULT_WEEK_HOURS} label={t(lang, "hours")} closedLabel={t(lang, "closed")} />
+        <HoursEditor
+          initial={DEFAULT_WEEK_HOURS}
+          label={t(lang, "hours")}
+          closedLabel={t(lang, "closed")}
+          help={t(lang, "hoursGmtHelp")}
+          openLabel={t(lang, "hoursOpen")}
+          closeLabel={t(lang, "hoursClose")}
+        />
         <fieldset>
           <legend className="font-bold mb-2">{t(lang, "holidays")}</legend>
           <label className="flex items-center gap-3 min-h-12 font-bold">

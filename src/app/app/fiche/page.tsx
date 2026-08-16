@@ -87,7 +87,14 @@ export default async function FichePage() {
           {t(lang, "greetWo")}
           <textarea name="greetingWo" rows={3} defaultValue={ctx.business.greetingWo} className="field mt-1 min-h-24" />
         </label>
-        <HoursEditor initial={hours} label={t(lang, "hours")} closedLabel={t(lang, "closed")} />
+        <HoursEditor
+          initial={hours}
+          label={t(lang, "hours")}
+          closedLabel={t(lang, "closed")}
+          help={t(lang, "hoursGmtHelp")}
+          openLabel={t(lang, "hoursOpen")}
+          closeLabel={t(lang, "hoursClose")}
+        />
         <fieldset>
           <legend className="font-bold mb-2">{t(lang, "holidays")}</legend>
           <label className="flex items-center gap-3 min-h-12 font-bold">

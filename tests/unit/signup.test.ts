@@ -63,4 +63,23 @@ describe("signup helpers", () => {
     expect(parsed.data.defaultLang).toBe("both");
     expect(parsed.data.reminderHour).toBe(10);
   });
+
+  it("accepte un métier saisi librement", () => {
+    const form = new FormData();
+    form.set("businessName", "Remchou Shop");
+    form.set("category", "Vente en ligne");
+    form.set("address", "Livraison à domicile");
+    form.set("phone", "77 666 66 66");
+    form.set("pin", "1234");
+    form.set("pinConfirm", "1234");
+    form.set("defaultLang", "fr");
+    form.set("holidayPolicy", "closed");
+    form.append("serviceName", "Set de draps");
+    form.append("servicePriceFcfa", "12500");
+    form.append("serviceDurationMin", "15");
+    const parsed = parseSignupForm(form);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.data.category).toBe("Vente en ligne");
+  });
 });

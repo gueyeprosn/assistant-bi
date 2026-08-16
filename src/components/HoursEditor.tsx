@@ -1,16 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { DAY_LABELS_FR, type DayKey, type HoursMap } from "@/lib/hours";
+import { DAY_LABELS_FR, hourSelectOptions, type DayKey, type HoursMap } from "@/lib/hours";
 
 export function HoursEditor({
   initial,
   label = "Horaires",
   closedLabel = "Fermé",
+  help,
+  openLabel = "Ouverture",
+  closeLabel = "Fermeture",
 }: {
   initial: HoursMap;
   label?: string;
   closedLabel?: string;
+  help?: string;
+  openLabel?: string;
+  closeLabel?: string;
 }) {
   const [hours, setHours] = useState<HoursMap>(initial);
   const ordered: DayKey[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -26,6 +32,7 @@ export function HoursEditor({
     <div className="space-y-3">
       <input type="hidden" name="hoursJson" value={JSON.stringify(hours)} />
       <p className="font-bold">{label}</p>
+      {help ? <p className="text-muted">{help}</p> : null}
       {ordered.map((day) => {
         const slot = hours[day]?.[0];
         const open = Boolean(slot);
@@ -47,18 +54,36 @@ export function HoursEditor({
             </div>
             {open && (
               <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="time"
-                  value={start}
-                  onChange={(e) => setDay(day, true, e.target.value, end)}
-                  className="field"
-                />
-                <input
-                  type="time"
-                  value={end}
-                  onChange={(e) => setDay(day, true, start, e.target.value)}
-                  className="field"
-                />
+                <label className="block font-bold">
+                  {openLabel}
+                  <select
+                    value={start}
+                    onChange={(e) => setDay(day, true, e.target.value, end)}
+                    className="field mt-1"
+                    aria-label={`${DAY_LABELS_FR[day]} ${openLabel} GMT`}
+                  >
+                    {hourSelectOptions(start).map((hm) => (
+                      <option key={`s-${hm}`} value={hm}>
+                        {hm}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block font-bold">
+                  {closeLabel}
+                  <select
+                    value={end}
+                    onChange={(e) => setDay(day, true, start, e.target.value)}
+                    className="field mt-1"
+                    aria-label={`${DAY_LABELS_FR[day]} ${closeLabel} GMT`}
+                  >
+                    {hourSelectOptions(end).map((hm) => (
+                      <option key={`e-${hm}`} value={hm}>
+                        {hm}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
             )}
           </div>
