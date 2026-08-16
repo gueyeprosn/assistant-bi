@@ -272,6 +272,17 @@ export function LandingView({ lang }: { lang: Lang }) {
           <div className="glass rounded-2xl py-8 flex flex-col items-center gap-3 text-[#c5d0de]">
             <Logo className="h-10 w-10" alt="Assistant Bi" />
             <p>Assistant Bi · Dakar · B2B</p>
+            <nav className="flex flex-wrap justify-center gap-4 text-sm">
+              <Link href="/legal/confidentialite" className="underline min-h-12 inline-flex items-center">
+                Confidentialité
+              </Link>
+              <Link href="/legal/cgu" className="underline min-h-12 inline-flex items-center">
+                CGU
+              </Link>
+              <Link href="/legal/cgv" className="underline min-h-12 inline-flex items-center">
+                CGV
+              </Link>
+            </nav>
           </div>
         </footer>
       </div>

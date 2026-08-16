@@ -14,10 +14,28 @@ import { bookSlot } from "@/server/services/booking";
 import { writeAudit } from "@/server/services/audit";
 import { llmClassify, llmEnabled, llmPolish } from "../llm/client";
 import { factsBlock } from "../llm/prompts";
+import { BOT_TECHNICAL_FR } from "../errors";
 
 type Biz = Business & { services: Service[] };
 
 export async function handleInbound(opts: {
+  businessId: string;
+  customerPhone: string;
+  customerName?: string;
+  text: string;
+}): Promise<{ replies: string[]; conversationId: string; handoff: boolean }> {
+  try {
+    return await handleInboundUnsafe(opts);
+  } catch {
+    return {
+      replies: [BOT_TECHNICAL_FR],
+      conversationId: "",
+      handoff: false,
+    };
+  }
+}
+
+async function handleInboundUnsafe(opts: {
   businessId: string;
   customerPhone: string;
   customerName?: string;
@@ -29,7 +47,7 @@ export async function handleInbound(opts: {
   });
   if (!business) return { replies: ["Service indisponible."], conversationId: "", handoff: false };
 
-  if (business.status === "suspended") {
+  if (business.status === "suspended" || business.status === "cancelled") {
     const msg =
       "Ce numéro n'accepte plus les messages automatiques pour le moment. Merci de rappeler plus tard.";
     return { replies: [msg], conversationId: "", handoff: false };

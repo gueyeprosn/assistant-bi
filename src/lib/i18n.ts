@@ -142,6 +142,12 @@ export const DICT = {
     cancelPolicy: "Si le client annule",
     minNotice: "Préavis minimum (minutes)",
     quoteNote: "Note (optionnel)",
+    legalPrivacy: "Confidentialité",
+    legalCgu: "CGU",
+    legalCgv: "CGV",
+    deleteAccount: "Supprimer mon compte",
+    deleteAccountHelp: "Accès coupé tout de suite. Données conservées 30 jours puis effacées, sauf paiements.",
+    undelivered: "Message non délivré",
   },
   wo: {
     brand: "Assistant Bi",
@@ -284,6 +290,12 @@ export const DICT = {
     cancelPolicy: "Su kiliyaan bi dindée",
     minNotice: "Waxtu bu njëkk (minit)",
     quoteNote: "Karmat (su la neexee)",
+    legalPrivacy: "Sutura",
+    legalCgu: "CGU",
+    legalCgv: "CGV",
+    deleteAccount: "Dindi sama compte",
+    deleteAccountHelp: "Dugg dafa tëj léegi. 30 bés, topp far, paiement yi des.",
+    undelivered: "Baat bi demul",
   },
 } as const;
 

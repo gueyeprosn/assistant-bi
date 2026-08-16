@@ -65,6 +65,8 @@ model Business {
   ownerPhone         String
   slotStepMin        Int       @default(30)
   defaultDurationMin Int       @default(60)
+  cancelledAt        DateTime?
+  purgeAfter         DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -139,6 +141,7 @@ model Message {
   direction      String
   text           String
   language       String?
+  deliveryStatus String       @default("sent")
   createdAt      DateTime     @default(now())
 
   @@index([conversationId, createdAt])

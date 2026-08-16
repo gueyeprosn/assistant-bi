@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { handleInbound } from "@/lib/bot/engine";
 import { normalizeSnPhone } from "@/lib/phone";
+import { errorJson, limitedJson } from "@/lib/http";
 
 const schema = z.object({
   slug: z.string().min(1),
@@ -12,29 +13,16 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const limited = limitedJson(`demo:${req.headers.get("x-forwarded-for") || "local"}`, 60, 60_000);
+  if (limited) return limited;
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { success: false, error: { code: "TEXT_REQUIRED", message: "Requête invalide" } },
-      { status: 400 },
-    );
-  }
+  if (!parsed.success) return errorJson("VALIDATION_ERROR");
   const business = await prisma.business.findUnique({
     where: { slug: parsed.data.slug },
   });
-  if (!business) {
-    return NextResponse.json(
-      { success: false, error: { code: "BUSINESS_NOT_FOUND", message: "Commerce introuvable" } },
-      { status: 404 },
-    );
-  }
-  if (business.status === "suspended") {
-    return NextResponse.json(
-      { success: false, error: { code: "BUSINESS_SUSPENDED", message: "Commerce suspendu" } },
-      { status: 403 },
-    );
-  }
+  if (!business) return errorJson("BUSINESS_NOT_FOUND");
+  if (business.status === "suspended" || business.status === "cancelled") return errorJson("BUSINESS_SUSPENDED");
   const result = await handleInbound({
     businessId: business.id,
     customerPhone: normalizeSnPhone(parsed.data.phone),

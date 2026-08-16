@@ -7,6 +7,7 @@ import { getWhatsAppAdapter } from "@/lib/whatsapp/cloud";
 import { normalizeSnPhone } from "@/lib/phone";
 import { buildQuoteText } from "@/lib/quotes";
 import { addDays } from "@/lib/format";
+import { writeAudit } from "@/server/services/audit";
 
 export async function replyHandoff(formData: FormData): Promise<void> {
   const ctx = await requireOwner();
@@ -21,19 +22,25 @@ export async function replyHandoff(formData: FormData): Promise<void> {
   });
   if (!conv) return;
 
-  await prisma.message.create({
+  const row = await prisma.message.create({
     data: {
       conversationId: conv.id,
       direction: "outbound",
       text,
       language: conv.customer.language,
+      deliveryStatus: "pending",
     },
   });
   await prisma.conversation.update({
     where: { id: conv.id },
     data: { status: "handoff" },
   });
-  await getWhatsAppAdapter().sendText(conv.customer.phone, text, ctx.business.id);
+  try {
+    await getWhatsAppAdapter().sendText(conv.customer.phone, text, ctx.business.id);
+    await prisma.message.update({ where: { id: row.id }, data: { deliveryStatus: "sent" } });
+  } catch {
+    await prisma.message.update({ where: { id: row.id }, data: { deliveryStatus: "failed" } });
+  }
   revalidatePath("/app/messages");
 }
 
@@ -251,4 +258,33 @@ export async function createManualQuote(formData: FormData): Promise<void> {
     },
   });
   revalidatePath("/app/devis");
+}
+
+export async function requestAccountDeletion(): Promise<void> {
+  const ctx = await requireOwner();
+  if (!ctx) return;
+  const purgeAfter = addDays(new Date(), 30);
+  await prisma.business.update({
+    where: { id: ctx.business.id },
+    data: {
+      status: "cancelled",
+      cancelledAt: new Date(),
+      purgeAfter,
+    },
+  });
+  await prisma.session.updateMany({
+    where: { businessId: ctx.business.id, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+  await prisma.session.updateMany({
+    where: { userId: ctx.user.id, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+  await writeAudit({
+    action: "account_delete_requested",
+    actorUserId: ctx.user.id,
+    businessId: ctx.business.id,
+    metadata: { purgeAfter: purgeAfter.toISOString() },
+  });
+  revalidatePath("/app/abonnement");
 }

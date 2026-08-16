@@ -20,6 +20,9 @@ export default async function AdminLayout({
             <BrandLockup className="h-9 max-w-[200px]" />
           </Link>
           <div className="flex items-center gap-4">
+            <Link href="/admin/support" className="font-semibold text-navy min-h-12 inline-flex items-center">
+              Support
+            </Link>
             <span className="text-muted font-semibold">Back-office</span>
             <form action={logoutAction}>
               <button className="btn btn-ghost min-h-11">Quitter</button>

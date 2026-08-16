@@ -78,6 +78,15 @@ Voir `.env.example`. Les plus utiles en local :
 | `CRON_SECRET` | Protège `/api/cron/reminders` |
 | `WHATSAPP_*` | Cloud API (vide = simulateur seulement) |
 | `WAVE_MERCHANT_NUMBER` / `ORANGE_MONEY_MERCHANT` | Affichés au paiement |
+| `SUPPORT_WHATSAPP` | Numéro support équipe |
+| `LLM_MONTHLY_LIMIT_USD` | Plafond reformulation IA |
+
+## Légal et ops
+
+- [Confidentialité](/legal/confidentialite) · [CGU](/legal/cgu) · [CGV](/legal/cgv)
+- [Catalogue d’erreurs](docs/error-catalog.md) · [Résilience](docs/resilience.md)
+- [Go-live](docs/go-live-checklist.md) · [Déploiement](docs/deployment.md)
+
 
 ## Marque et UI
 

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { PLANS, getSubscriptionStatus, planPrice } from "@/lib/plans";
 import { formatDateTime, formatFcfa, planLabel, statusLabel } from "@/lib/format";
 import { merchantNumbers } from "@/lib/payments/manual";
-import { requestManualPayment } from "@/app/actions/business";
+import { requestManualPayment, requestAccountDeletion } from "@/app/actions/business";
 import { getLang } from "@/app/actions/lang";
 import { t } from "@/lib/i18n";
 
@@ -77,6 +77,11 @@ export default async function BillingPage() {
           ))}
         </ul>
       </section>
+      <form action={requestAccountDeletion} className="card p-4 space-y-2">
+        <p className="font-bold">{t(lang, "deleteAccount")}</p>
+        <p className="text-muted">{t(lang, "deleteAccountHelp")}</p>
+        <button className="btn btn-ghost w-full">{t(lang, "deleteAccount")}</button>
+      </form>
     </div>
   );
 }

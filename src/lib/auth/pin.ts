@@ -2,7 +2,7 @@ import { hash, verify } from "@node-rs/argon2";
 import bcrypt from "bcryptjs";
 
 const LOCK_AFTER = 5;
-const LOCK_MS = 15 * 60 * 1000;
+const LOCK_MS = 30 * 60 * 1000;
 const DELAY_MS: Record<number, number> = {
   3: 30_000,
   4: 2 * 60_000,
@@ -48,7 +48,7 @@ export function lockoutMessage(lockedUntil: Date | null | undefined, now = new D
   if (!lockedUntil) return "Trop d’essais. Réessayez plus tard.";
   const min = Math.max(1, Math.ceil((lockedUntil.getTime() - now.getTime()) / 60_000));
   return min >= 10
-    ? "Trop d’essais. Réessayez dans 15 minutes."
+    ? "Trop d’essais. Réessayez dans 30 minutes."
     : `Trop d’essais. Réessayez dans ${min} min.`;
 }
 

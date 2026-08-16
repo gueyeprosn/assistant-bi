@@ -3,6 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/db";
 import { handleInbound } from "@/lib/bot/engine";
 import { cloudAdapter } from "@/lib/whatsapp/cloud";
+import { errorJson, limitedJson } from "@/lib/http";
 import { normalizeSnPhone } from "@/lib/phone";
 
 export async function GET(req: NextRequest) {
@@ -30,21 +31,18 @@ type WaChange = {
 };
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  const limited = limitedJson(`wa:${ip}`, 60, 60_000);
+  if (limited) return limited;
   if (!process.env.WHATSAPP_ACCESS_TOKEN) {
-    return NextResponse.json(
-      { success: false, error: { code: "WHATSAPP_NOT_CONFIGURED", message: "WhatsApp non configuré" } },
-      { status: 503 },
-    );
+    return errorJson("WHATSAPP_NOT_CONFIGURED");
   }
   const raw = await req.text();
   const appSecret = process.env.WHATSAPP_APP_SECRET;
   if (appSecret) {
     const header = req.headers.get("x-hub-signature-256");
     if (!metaSignatureOk(raw, header, appSecret)) {
-      return NextResponse.json(
-        { success: false, error: { code: "WHATSAPP_BAD_SIGNATURE", message: "Signature invalide" } },
-        { status: 401 },
-      );
+      return errorJson("WEBHOOK_INVALID_SIGNATURE");
     }
   }
   let payload: { entry?: { changes?: WaChange[] }[] } | null = null;
@@ -91,8 +89,21 @@ export async function POST(req: NextRequest) {
         customerName: name,
         text,
       });
-      for (const reply of result.replies) {
-        await cloudAdapter.sendText(normalizeSnPhone(msg.from), reply, business.id);
+      try {
+        for (const reply of result.replies) {
+          await cloudAdapter.sendText(normalizeSnPhone(msg.from), reply, business.id);
+        }
+      } catch {
+        if (result.conversationId) {
+          await prisma.message.updateMany({
+            where: {
+              conversationId: result.conversationId,
+              direction: "outbound",
+              createdAt: { gte: new Date(Date.now() - 15_000) },
+            },
+            data: { deliveryStatus: "failed" },
+          });
+        }
       }
       await prisma.webhookEvent.updateMany({
         where: { provider: "whatsapp", externalId: msg.id },

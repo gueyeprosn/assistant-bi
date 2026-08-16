@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { formatDateTime, formatFcfa, planLabel, statusLabel } from "@/lib/format";
+import { adminProductMetrics } from "@/lib/metrics";
 import {
   confirmPayment,
   extendTrial,
@@ -10,7 +11,7 @@ import {
 } from "@/app/actions/admin";
 
 export default async function AdminHome() {
-  const [businesses, payments, audits] = await Promise.all([
+  const [businesses, payments, audits, metrics] = await Promise.all([
     prisma.business.findMany({
       include: {
         _count: { select: { appointments: true, customers: true } },
@@ -27,11 +28,38 @@ export default async function AdminHome() {
       orderBy: { createdAt: "desc" },
       take: 20,
     }),
+    adminProductMetrics(),
   ]);
 
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold text-navy">Commerces</h1>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="card p-3">
+          <div className="text-2xl font-bold">{metrics.businesses}</div>
+          <div className="text-muted text-sm">Commerces</div>
+        </div>
+        <div className="card p-3">
+          <div className="text-2xl font-bold">{metrics.readyPct} %</div>
+          <div className="text-muted text-sm">Fiches ≥ 80 %</div>
+        </div>
+        <div className="card p-3">
+          <div className="text-2xl font-bold">{metrics.conversionPct} %</div>
+          <div className="text-muted text-sm">Essai → payant</div>
+        </div>
+        <div className="card p-3">
+          <div className="text-2xl font-bold">{metrics.handoffPct} %</div>
+          <div className="text-muted text-sm">Transferts humain</div>
+        </div>
+        <div className="card p-3">
+          <div className="text-2xl font-bold">{metrics.churnMonth}</div>
+          <div className="text-muted text-sm">Résiliés ce mois</div>
+        </div>
+        <div className="card p-3">
+          <div className="text-2xl font-bold">{metrics.stalePayments}</div>
+          <div className="text-muted text-sm">Paiements &gt; 24 h</div>
+        </div>
+      </div>
 
       {payments.length > 0 && (
         <section className="space-y-3">

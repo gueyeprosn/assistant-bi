@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     (secret && auth === `Bearer ${secret}`) ||
     (secret && q === secret);
   if (!ok) {
-    const err = jsonError("CRON_UNAUTHORIZED", "Non autorisé", 401);
+    const err = jsonError("CRON_UNAUTHORIZED");
     return NextResponse.json(err.body, { status: err.status });
   }
   const result = await sendJ1Reminders();

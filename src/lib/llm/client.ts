@@ -1,16 +1,17 @@
 import { INTENT_PROMPT, SYSTEM_PROMPT } from "./prompts";
 import type { Intent } from "../bot/intents";
 import type { Lang } from "../bot/language";
+import { llmBudgetAllows, recordLlmCall } from "./budget";
 
-const TIMEOUT_MS = 8000;
+const TIMEOUT_MS = 3000;
 
 export function llmEnabled() {
-  return Boolean(process.env.OPENAI_API_KEY);
+  return Boolean(process.env.OPENAI_API_KEY) && llmBudgetAllows();
 }
 
 async function chat(messages: { role: "system" | "user" | "assistant"; content: string }[]) {
   const key = process.env.OPENAI_API_KEY;
-  if (!key) return null;
+  if (!key || !llmBudgetAllows()) return null;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
@@ -31,6 +32,7 @@ async function chat(messages: { role: "system" | "user" | "assistant"; content: 
     const data = (await res.json()) as {
       choices?: { message?: { content?: string } }[];
     };
+    recordLlmCall();
     return data.choices?.[0]?.message?.content?.trim() ?? null;
   } catch {
     return null;

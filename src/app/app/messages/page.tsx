@@ -54,6 +54,9 @@ export default async function MessagesPage() {
                       {m.direction === "inbound" ? t(lang, "client") : t(lang, "you")}
                     </span>
                     {m.text}
+                    {m.direction === "outbound" && m.deliveryStatus === "failed" && (
+                      <span className="block text-sm font-bold text-navy mt-1">{t(lang, "undelivered")}</span>
+                    )}
                   </div>
                 ))}
               </div>

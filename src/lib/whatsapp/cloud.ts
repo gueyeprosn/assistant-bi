@@ -1,10 +1,28 @@
 import { splitWhatsAppChunks, type WhatsAppAdapter } from "./types";
 
-/**
- * Adaptateur Meta Cloud API.
- * Renseigner WHATSAPP_ACCESS_TOKEN et WHATSAPP_PHONE_NUMBER_ID.
- * Voir docs/whatsapp-coexistence.md
- */
+async function sleep(ms: number) {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+async function postCloud(to: string, body: string, token: string, phoneId: string) {
+  const res = await fetch(`https://graph.facebook.com/v21.0/${phoneId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to,
+      type: "text",
+      text: { body, preview_url: false },
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`whatsapp ${res.status}`);
+  }
+}
+
 export const cloudAdapter: WhatsAppAdapter = {
   name: "cloud",
   async sendText(toPhone, text) {
@@ -16,23 +34,18 @@ export const cloudAdapter: WhatsAppAdapter = {
     }
     const to = toPhone.replace(/^\+/, "");
     for (const body of splitWhatsAppChunks(text)) {
-      const res = await fetch(`https://graph.facebook.com/v21.0/${phoneId}/messages`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messaging_product: "whatsapp",
-          to,
-          type: "text",
-          text: { body, preview_url: false },
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`[whatsapp-cloud] ${res.status} ${err}`);
+      let last: unknown;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          await postCloud(to, body, token, phoneId);
+          last = null;
+          break;
+        } catch (e) {
+          last = e;
+          await sleep(500 * 2 ** attempt);
+        }
       }
+      if (last) throw last instanceof Error ? last : new Error("whatsapp send failed");
     }
   },
 };

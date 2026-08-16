@@ -1,10 +1,13 @@
-export function jsonError(code: string, message: string, status = 400) {
+import { ERRORS, type ErrorCode } from "./errors";
+
+export function jsonError(code: ErrorCode, lang: "fr" | "wo" = "fr", status?: number) {
+  const spec = ERRORS[code];
   return {
     body: {
       success: false as const,
-      error: { code, message },
+      error: { code, message: spec[lang] },
     },
-    status,
+    status: status ?? spec.status,
   };
 }
 

@@ -39,6 +39,17 @@ export default async function PlusPage() {
         <form action={logoutEverywhereAction}>
           <button className="btn btn-ghost w-full">{t(lang, "quitAll")}</button>
         </form>
+        <div className="flex flex-wrap gap-3 text-sm text-muted px-1">
+          <Link href="/legal/confidentialite" className="underline min-h-12 inline-flex items-center">
+            {t(lang, "legalPrivacy")}
+          </Link>
+          <Link href="/legal/cgu" className="underline min-h-12 inline-flex items-center">
+            {t(lang, "legalCgu")}
+          </Link>
+          <Link href="/legal/cgv" className="underline min-h-12 inline-flex items-center">
+            {t(lang, "legalCgv")}
+          </Link>
+        </div>
       </div>
     </div>
   );
