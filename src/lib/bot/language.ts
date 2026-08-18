@@ -26,7 +26,9 @@ const WOLOF_MARKERS = [
   "ngeen",
   "danga",
   "dama",
+  "damay",
   "def",
+  "nanga def",
   "nekk",
   "liggeey",
   "yendu",
@@ -38,17 +40,9 @@ const WOLOF_MARKERS = [
   "kay",
   "baax",
   "sa waxtu",
+  "sant yallah",
+  "duma",
 ];
-
-export function detectLanguage(text: string): Lang {
-  const t = text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
-  let score = 0;
-  for (const w of WOLOF_MARKERS) {
-    const n = w.normalize("NFD").replace(/\p{M}/gu, "");
-    if (t.includes(n)) score += 1;
-  }
-  return score >= 2 ? "wo" : "fr";
-}
 
 const FRENCH_MARKERS = [
   "bonjour",
@@ -61,7 +55,28 @@ const FRENCH_MARKERS = [
   "combien",
   "adresse",
   "tarif",
+  "prix",
+  "disponible",
 ];
+
+export function detectLanguage(text: string): Lang {
+  const t = text.toLowerCase().normalize("NFD").replace(/\p{M}/gu, "");
+  let wolofScore = 0;
+  for (const w of WOLOF_MARKERS) {
+    const n = w.normalize("NFD").replace(/\p{M}/gu, "");
+    if (t.includes(n)) wolofScore += 1;
+  }
+
+  let frenchScore = 0;
+  for (const f of FRENCH_MARKERS) {
+    const n = f.normalize("NFD").replace(/\p{M}/gu, "");
+    if (t.includes(n)) frenchScore += 1;
+  }
+
+  if (wolofScore >= 1 && frenchScore === 0) return "wo";
+  if (wolofScore > frenchScore) return "wo";
+  return "fr";
+}
 
 export function resolveBotLang(text: string, defaultLang: string): Lang {
   const detected = detectLanguage(text);

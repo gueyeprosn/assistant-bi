@@ -16,7 +16,7 @@ export async function bookSlot(opts: {
   if (opts.sessionBusinessId) {
     assertSameBusiness(opts.sessionBusinessId, opts.businessId);
   }
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: any) => {
     const biz = await tx.business.findUnique({ where: { id: opts.businessId } });
     const noticeMin = biz?.minimumNoticeMin ?? 60;
     if (opts.startsAt.getTime() < Date.now() + noticeMin * 60_000) {
@@ -57,10 +57,6 @@ export async function bookSlot(opts: {
       take: 1,
     });
     if (busy.length || blocked.length) {
-      return { ok: false as const, code: "APPOINTMENT_SLOT_UNAVAILABLE" };
-    }
-    const free = await isSlotFree(opts.businessId, opts.startsAt, opts.endsAt);
-    if (!free) {
       return { ok: false as const, code: "APPOINTMENT_SLOT_UNAVAILABLE" };
     }
     const appointment = await tx.appointment.create({

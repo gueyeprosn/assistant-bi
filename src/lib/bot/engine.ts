@@ -16,6 +16,11 @@ import { llmClassify, llmEnabled, llmPolish } from "../llm/client";
 import { factsBlock } from "../llm/prompts";
 import { BOT_TECHNICAL_FR } from "../errors";
 import { matchFaq, parseFaq } from "../faq";
+import {
+  notifyOwnerNewAppointment,
+  notifyOwnerHandoff,
+  notifyOwnerAppointmentCancelled,
+} from "../whatsapp/notify-owner";
 
 type Biz = Business & { services: Service[] };
 
@@ -103,6 +108,7 @@ async function handleInboundUnsafe(opts: {
   const { replies, next, summary, intent } = await runEngine({
     business,
     customerName: customer.name,
+    customerPhone: opts.customerPhone,
     conversationId: conversation.id,
     customerId: customer.id,
     text: opts.text,
@@ -150,6 +156,7 @@ async function handleInboundUnsafe(opts: {
 async function runEngine(ctx: {
   business: Biz;
   customerName: string | null;
+  customerPhone: string;
   conversationId: string;
   customerId: string;
   text: string;
@@ -284,6 +291,7 @@ async function startBooking(ctx: {
   text: string;
   lang: Lang;
   customerId: string;
+  customerPhone: string;
   conversationId: string;
   customerName: string | null;
   state: ConvState;
@@ -346,6 +354,7 @@ async function continueBooking(
     text: string;
     lang: Lang;
     customerId: string;
+    customerPhone: string;
     conversationId: string;
     customerName: string | null;
     state: ConvState;
@@ -408,6 +417,7 @@ async function finishBooking(
     business: Biz;
     lang: Lang;
     customerId: string;
+    customerPhone: string;
     customerName: string | null;
   },
   booking: NonNullable<ConvState["booking"]>,
@@ -492,6 +502,17 @@ async function finishBooking(
     ctx.lang === "wo"
       ? `Rendez-vous bi jàll na : ${formatDate(start)} ci ${formatTime(start)}${svc}.\nDinaa la fàttali bés bu njëkk. Jërëjëf !`
       : `C'est noté : ${formatDate(start)} à ${formatTime(start)}${svc}.\nJe vous enverrai un rappel la veille. À bientôt chez ${ctx.business.name}.`;
+
+  // Notify owner in real time
+  notifyOwnerNewAppointment({
+    businessId: ctx.business.id,
+    customerName: ctx.customerName,
+    customerPhone: ctx.customerPhone,
+    serviceName: service?.name,
+    priceFcfa: service?.priceFcfa,
+    startsAt: start,
+  }).catch((e) => console.warn("[engine] notifyOwnerNewAppointment", e));
+
   return {
     replies: [custom ? `${base}\n${custom}` : base],
     next: { mode: "idle" },
@@ -502,6 +523,8 @@ async function finishBooking(
 async function cancelLatest(ctx: {
   business: Biz;
   customerId: string;
+  customerPhone: string;
+  customerName: string | null;
   lang: Lang;
 }) {
   const appt = await prisma.appointment.findFirst({
@@ -527,6 +550,15 @@ async function cancelLatest(ctx: {
     where: { id: appt.id },
     data: { status: "cancelled", cancelledAt: new Date(), cancelReason: "client" },
   });
+
+  // Notify owner in real time
+  notifyOwnerAppointmentCancelled({
+    businessId: ctx.business.id,
+    customerName: ctx.customerName,
+    customerPhone: ctx.customerPhone,
+    startsAt: appt.startsAt,
+  }).catch((e) => console.warn("[engine] notifyOwnerAppointmentCancelled", e));
+
   return {
     replies: [
       ctx.lang === "wo"
@@ -642,8 +674,20 @@ function handoff(ctx: {
   text: string;
   lang: Lang;
   business: Biz;
+  customerPhone?: string;
+  customerName?: string | null;
 }): { replies: string[]; next: ConvState; summary?: string } {
   const summary = `Le client demande à parler au patron. Dernier message : « ${ctx.text} ».`;
+
+  if (ctx.customerPhone) {
+    notifyOwnerHandoff({
+      businessId: ctx.business.id,
+      customerName: ctx.customerName,
+      customerPhone: ctx.customerPhone,
+      lastMessage: ctx.text,
+    }).catch((e) => console.warn("[engine] notifyOwnerHandoff", e));
+  }
+
   return {
     replies: [
       ctx.lang === "wo"
@@ -668,8 +712,11 @@ function unknown(ctx: { business: Biz; lang: Lang; text: string }) {
 }
 
 export function polishIsFactSafe(draft: string, polished: string) {
-  const nums = (s: string) =>
-    Array.from(s.matchAll(/\d{3,}/g)).map((m) => m[0].replace(/\s/g, ""));
+  const normalizeTimes = (s: string) => s.replace(/\b(\d{1,2})[h:](\d{2})\b/gi, "");
+  const nums = (s: string) => {
+    const withoutTimes = normalizeTimes(s);
+    return Array.from(withoutTimes.matchAll(/\b\d{3,}\b/g)).map((m) => m[0].replace(/\s/g, ""));
+  };
   const allowed = new Set(nums(draft));
   return nums(polished).every((n) => allowed.has(n));
 }

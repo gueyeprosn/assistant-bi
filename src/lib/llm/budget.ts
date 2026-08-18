@@ -1,3 +1,5 @@
+import { writeAudit } from "@/server/services/audit";
+
 /** Estimation MVP gpt-4o-mini, compteur processus. */
 const USD_PER_CALL = 0.002;
 let monthKey = "";
@@ -30,10 +32,16 @@ export function llmBudgetAllows(): boolean {
   return true;
 }
 
-export function recordLlmCall() {
+export function recordLlmCall(businessId?: string) {
   spentUsd += USD_PER_CALL;
+  writeAudit({
+    action: "llm_call",
+    businessId: businessId ?? null,
+    metadata: { costUsd: USD_PER_CALL, month: period() },
+  }).catch(() => {});
 }
 
 export function llmSpendSnapshot() {
   return { spentUsd, limitUsd: limitUsd(), monthKey: period() };
 }
+

@@ -3,6 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/db";
 import { handleInbound } from "@/lib/bot/engine";
 import { cloudAdapter } from "@/lib/whatsapp/cloud";
+import { downloadAndTranscribeWhatsAppAudio } from "@/lib/whatsapp/audio";
 import { errorJson, limitedJson } from "@/lib/http";
 import { normalizeSnPhone } from "@/lib/phone";
 
@@ -25,6 +26,8 @@ type WaChange = {
       type?: string;
       text?: { body?: string };
       button?: { text?: string };
+      audio?: { id?: string; mime_type?: string; voice?: boolean };
+      voice?: { id?: string; mime_type?: string };
     }[];
     contacts?: { wa_id?: string; profile?: { name?: string } }[];
   };
@@ -59,16 +62,40 @@ export async function POST(req: NextRequest) {
     const messages = value?.messages ?? [];
     if (!messages.length) continue;
 
+    const phoneNumberId = value?.metadata?.phone_number_id;
     const display = value?.metadata?.display_phone_number;
-    const business = await findBusinessForWaNumber(display);
+    const business = await findBusinessForWaNumber(phoneNumberId, display);
     if (!business) {
-      console.warn("[whatsapp] aucun commerce pour", display);
+      console.warn("[whatsapp] aucun commerce pour phoneNumberId:", phoneNumberId, "display:", display);
       continue;
     }
 
     for (const msg of messages) {
-      const text = msg.text?.body || msg.button?.text;
-      if (!text || !msg.from || !msg.id) continue;
+      if (!msg.from || !msg.id) continue;
+
+      let text = msg.text?.body || msg.button?.text;
+
+      // Handle voice/audio messages via Whisper transcription
+      if (!text && (msg.type === "audio" || msg.type === "voice")) {
+        const mediaId = msg.audio?.id || msg.voice?.id;
+        if (mediaId) {
+          const transcribed = await downloadAndTranscribeWhatsAppAudio({
+            mediaId,
+            token: business.whatsappToken || process.env.WHATSAPP_ACCESS_TOKEN,
+          });
+          if (transcribed) {
+            text = transcribed;
+          } else {
+            text =
+              business.defaultLang === "wo"
+                ? "Dama laaj dimbali ci rendez-vous walla tarif."
+                : "Bonjour, je souhaite des informations.";
+          }
+        }
+      }
+
+      if (!text) continue;
+
       const hash = createHash("sha256").update(raw).digest("hex");
       try {
         await prisma.webhookEvent.create({
@@ -115,15 +142,24 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true });
 }
 
-async function findBusinessForWaNumber(display?: string) {
-  if (!display) {
-    const only = await prisma.business.findMany({ take: 2 });
-    return only.length === 1 ? only[0] : null;
+async function findBusinessForWaNumber(phoneNumberId?: string, display?: string) {
+  if (phoneNumberId) {
+    const biz = await prisma.business.findFirst({
+      where: { whatsappPhoneNumberId: phoneNumberId },
+    });
+    if (biz) return biz;
   }
-  const phone = normalizeSnPhone(display);
-  return prisma.business.findFirst({
-    where: { ownerPhone: phone },
-  });
+  if (display) {
+    const phone = normalizeSnPhone(display);
+    const biz = await prisma.business.findFirst({
+      where: {
+        OR: [{ ownerPhone: phone }, { secondaryPhone: phone }],
+      },
+    });
+    if (biz) return biz;
+  }
+  const only = await prisma.business.findMany({ take: 2 });
+  return only.length === 1 ? only[0] : null;
 }
 
 function metaSignatureOk(raw: string, header: string | null, secret: string) {
