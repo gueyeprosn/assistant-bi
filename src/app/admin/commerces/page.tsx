@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { controlTowerMetrics } from "@/lib/metrics";
 import { formatDateTime, planLabel, statusLabel } from "@/lib/format";
 import {
@@ -13,31 +14,46 @@ export const dynamic = "force-dynamic";
 export default async function AdminCommercesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; s?: string }>;
+  searchParams: Promise<{ q?: string; s?: string; p?: string }>;
 }) {
-  const { q = "", s = "" } = await searchParams;
+  const { q = "", s = "", p = "" } = await searchParams;
   const m = await controlTowerMetrics();
   const query = q.trim().toLowerCase();
+
   const tenants = m.tenants.filter((b) => {
     if (s && b.status !== s) return false;
+    if (p && b.plan !== p) return false;
     if (!query) return true;
     return (
       b.name.toLowerCase().includes(query) ||
       b.category.toLowerCase().includes(query) ||
       b.neighborhood.toLowerCase().includes(query) ||
-      b.phones.some((p) => p.includes(query.replace(/\s/g, "")))
+      b.phones.some((phone) => phone.includes(query.replace(/\s/g, "")))
     );
   });
 
   return (
-    <div className="space-y-5">
-      <PageHeader
-        title="Commerces"
-        help="Tous les comptes clients du SaaS. Ici vous activez, suspendez, prolongez l’essai. « Voir comme le client » ouvre leur espace, pas cette console."
-      />
-      <form className="grid sm:grid-cols-[1fr_160px_auto] gap-2">
-        <input name="q" defaultValue={q} placeholder="Nom, métier, numéro" className="field" />
-        <select name="s" defaultValue={s} className="field">
+    <div className="space-y-6">
+      <div className="flex flex-wrap justify-between items-start gap-4">
+        <PageHeader
+          title="Commerces & Portefeuille"
+          help="Gestion globale des commerces inscrits. Cliquez sur un commerce pour accéder à sa fiche technique détaillée."
+        />
+        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-line text-xs font-bold">
+          <span className="text-navy">{tenants.length} affichés</span>
+          <span className="text-muted">/ {m.tenants.length} total</span>
+        </div>
+      </div>
+
+      {/* Filter bar */}
+      <form className="card p-3.5 bg-white grid grid-cols-1 sm:grid-cols-[1fr_160px_160px_auto] gap-2.5">
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="Rechercher (nom, quartier, 77...)"
+          className="field text-sm"
+        />
+        <select name="s" defaultValue={s} className="field text-sm">
           <option value="">Tous les statuts</option>
           <option value="trial">Essai</option>
           <option value="active">Actif</option>
@@ -45,62 +61,162 @@ export default async function AdminCommercesPage({
           <option value="suspended">Suspendu</option>
           <option value="cancelled">Résilié</option>
         </select>
-        <button className="btn btn-primary">Filtrer</button>
+        <select name="p" defaultValue={p} className="field text-sm">
+          <option value="">Toutes les formules</option>
+          <option value="trial">Essai</option>
+          <option value="micro">Micro (1 500 F)</option>
+          <option value="standard">Standard (3 000 F)</option>
+          <option value="pro">Pro (6 000 F)</option>
+        </select>
+        <button className="btn btn-primary text-sm px-5">Filtrer</button>
       </form>
-      <p className="text-muted">{tenants.length} commerce{tenants.length > 1 ? "s" : ""}</p>
-      <ul className="space-y-3">
-        {tenants.map((b) => (
-          <li key={b.id} className="card p-4 space-y-3 bg-white">
-            <div className="flex flex-wrap justify-between gap-2">
-              <div>
-                <div className="text-lg font-bold text-navy">{b.name}</div>
-                <div className="text-muted">
-                  {b.category} · {b.neighborhood || "quartier —"} · {planLabel(b.plan)} · {statusLabel(b.status)}
+
+      {/* Tenants list */}
+      <ul className="space-y-3.5">
+        {tenants.length === 0 && (
+          <li className="card p-8 bg-white text-center text-muted">
+            Aucun commerce ne correspond à vos critères de recherche.
+          </li>
+        )}
+
+        {tenants.map((b) => {
+          const mainPhone = b.phones[0] ? b.phones[0].replace(/\D/g, "") : "";
+          const waUrl = mainPhone ? `https://wa.me/${mainPhone}` : "";
+
+          return (
+            <li key={b.id} className="card p-5 space-y-4 bg-white hover:border-navy/30 transition-all">
+              <div className="flex flex-wrap justify-between items-start gap-4">
+                <div className="space-y-1.5 min-w-0">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <Link
+                      href={`/admin/commerces/${b.id}`}
+                      className="text-lg font-black text-navy hover:underline flex items-center gap-1.5"
+                    >
+                      {b.name}
+                      <span className="text-xs text-muted font-normal">↗</span>
+                    </Link>
+
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold ${
+                        b.status === "active"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : b.status === "trial"
+                            ? "bg-gold/20 text-navy border border-gold/40"
+                            : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {statusLabel(b.status)}
+                    </span>
+
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-navy text-white">
+                      {planLabel(b.plan)}
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-muted font-medium">
+                    {b.category} · {b.neighborhood || "Quartier —"} · Modifié le {formatDateTime(b.updatedAt)}
+                  </div>
+
+                  {/* Badges metrics */}
+                  <div className="pt-1 flex flex-wrap gap-2 text-xs font-semibold">
+                    <span className="bg-soft border border-line rounded-lg px-2.5 py-1 text-navy">
+                      📊 {b.fichePct} % fiche
+                    </span>
+                    <span className="bg-soft border border-line rounded-lg px-2.5 py-1 text-navy">
+                      👥 {b.customers} clients
+                    </span>
+                    <span className="bg-soft border border-line rounded-lg px-2.5 py-1 text-navy">
+                      🗓️ {b.appointments} RDV
+                    </span>
+                    <span className="bg-soft border border-line rounded-lg px-2.5 py-1 text-navy">
+                      ✂️ {b.services} prestations
+                    </span>
+                    {b.handoffs > 0 && (
+                      <span className="bg-amber-100 border border-amber-300 text-amber-900 rounded-lg px-2.5 py-1">
+                        ⚠️ {b.handoffs} transfert(s)
+                      </span>
+                    )}
+                    <span
+                      className={`rounded-lg px-2.5 py-1 ${
+                        b.whatsapp
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                      }`}
+                    >
+                      {b.whatsapp ? "✓ WhatsApp configuré" : "⚡ WhatsApp par défaut"}
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-2 text-sm font-semibold">
-                  <span className="bg-soft rounded-lg px-2 py-1">{b.fichePct} % fiche</span>
-                  <span className="bg-soft rounded-lg px-2 py-1">{b.customers} clients</span>
-                  <span className="bg-soft rounded-lg px-2 py-1">{b.appointments} RDV</span>
-                  <span className="bg-soft rounded-lg px-2 py-1">{b.services} prestations</span>
-                  <span className={`rounded-lg px-2 py-1 ${b.handoffs ? "bg-gold text-navy" : "bg-soft"}`}>
-                    {b.handoffs} à reprendre
-                  </span>
-                  <span className={`rounded-lg px-2 py-1 ${b.whatsapp ? "bg-soft" : "bg-gold/20"}`}>
-                    {b.whatsapp ? "WhatsApp OK" : "WhatsApp à brancher"}
-                  </span>
-                </div>
-                <div className="text-sm text-muted mt-1">
-                  {b.phones.join(" · ") || "pas de numéro"} · maj {formatDateTime(b.updatedAt)}
+
+                {/* Right actions */}
+                <div className="flex flex-col sm:items-end gap-2 shrink-0">
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/admin/commerces/${b.id}`}
+                      className="btn btn-ghost text-xs min-h-9 px-3.5"
+                    >
+                      Fiche complète
+                    </Link>
+                    {waUrl && (
+                      <a
+                        href={waUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn bg-[#25D366] hover:bg-[#128C7E] text-white text-xs min-h-9 px-3.5 inline-flex items-center gap-1.5"
+                      >
+                        💬 WhatsApp
+                      </a>
+                    )}
+                  </div>
+
+                  <form action={impersonateBusiness} className="flex gap-1.5">
+                    <input type="hidden" name="businessId" value={b.id} />
+                    <input
+                      name="reason"
+                      required
+                      minLength={8}
+                      placeholder="Motif d'accès..."
+                      className="field text-xs min-h-9 max-w-[150px] py-1"
+                    />
+                    <button className="btn btn-primary text-xs min-h-9 px-3">
+                      Prendre la main
+                    </button>
+                  </form>
                 </div>
               </div>
-              <form action={impersonateBusiness} className="flex flex-col gap-2 min-w-[220px]">
-                <input type="hidden" name="businessId" value={b.id} />
-                <input name="reason" required minLength={8} placeholder="Motif (min. 8 caractères)" className="field" />
-                <button className="btn btn-ghost">Voir comme le client</button>
-              </form>
-            </div>
-            {b.phones[0] && (
-              <form action={resetOwnerPin} className="flex flex-wrap gap-2 items-end">
-                <input type="hidden" name="phone" value={b.phones[0]} />
-                <input name="pin" required minLength={4} placeholder="Nouveau PIN" className="field max-w-[140px]" />
-                <button className="btn btn-ghost text-sm">Réinitialiser le PIN</button>
-              </form>
-            )}
-            <div className="flex flex-wrap gap-2">
-              {(["active", "past_due", "suspended", "trial"] as const).map((st) => (
-                <form key={st} action={setBusinessStatus}>
-                  <input type="hidden" name="id" value={b.id} />
-                  <input type="hidden" name="status" value={st} />
-                  <button className="btn btn-ghost text-sm">{statusLabel(st)}</button>
-                </form>
-              ))}
-              <form action={extendTrial}>
-                <input type="hidden" name="id" value={b.id} />
-                <button className="btn btn-gold text-sm">+7 j essai</button>
-              </form>
-            </div>
-          </li>
-        ))}
+
+              {/* Bottom Quick Bar */}
+              <div className="pt-2 border-t border-line flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="text-muted font-medium">
+                  Numéros : {b.phones.join(" · ") || "Pas de numéro"}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {(["active", "past_due", "suspended", "trial"] as const).map((st) => (
+                    <form key={st} action={setBusinessStatus}>
+                      <input type="hidden" name="id" value={b.id} />
+                      <input type="hidden" name="status" value={st} />
+                      <button
+                        className={`btn text-[11px] min-h-7 px-2 rounded-lg ${
+                          b.status === st ? "bg-navy text-white" : "btn-ghost"
+                        }`}
+                      >
+                        {statusLabel(st)}
+                      </button>
+                    </form>
+                  ))}
+
+                  <form action={extendTrial}>
+                    <input type="hidden" name="id" value={b.id} />
+                    <button className="btn btn-gold text-[11px] min-h-7 px-2.5 rounded-lg">
+                      +7j essai
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

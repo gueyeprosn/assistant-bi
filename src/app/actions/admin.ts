@@ -176,3 +176,47 @@ export async function resetOwnerPin(formData: FormData): Promise<void> {
   });
   revalidatePath("/admin", "layout");
 }
+
+export async function updateBusinessPlan(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  if (!admin) return;
+  const id = String(formData.get("id") || "");
+  const plan = String(formData.get("plan") || "");
+  if (!["trial", "micro", "standard", "pro"].includes(plan)) return;
+
+  await prisma.business.update({
+    where: { id },
+    data: { plan, status: plan === "trial" ? "trial" : "active" },
+  });
+  await writeAudit({
+    action: "plan_update",
+    actorUserId: admin.user.id,
+    businessId: id,
+    metadata: { plan },
+  });
+  revalidatePath("/admin", "layout");
+}
+
+export async function updateBusinessWhatsAppConfig(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  if (!admin) return;
+  const id = String(formData.get("id") || "");
+  const whatsappPhoneNumberId = String(formData.get("whatsappPhoneNumberId") || "").trim();
+  const whatsappToken = String(formData.get("whatsappToken") || "").trim();
+
+  await prisma.business.update({
+    where: { id },
+    data: {
+      whatsappPhoneNumberId,
+      ...(whatsappToken ? { whatsappToken } : {}),
+    },
+  });
+  await writeAudit({
+    action: "whatsapp_config_update",
+    actorUserId: admin.user.id,
+    businessId: id,
+    metadata: { whatsappPhoneNumberId, hasToken: Boolean(whatsappToken) },
+  });
+  revalidatePath("/admin", "layout");
+}
+
