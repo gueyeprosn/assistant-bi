@@ -29,6 +29,7 @@ export async function replyHandoff(formData: FormData): Promise<void> {
     data: {
       conversationId: conv.id,
       direction: "outbound",
+      author: "owner",
       text,
       language: conv.customer.language,
       deliveryStatus: "pending",
@@ -45,6 +46,7 @@ export async function replyHandoff(formData: FormData): Promise<void> {
     await prisma.message.update({ where: { id: row.id }, data: { deliveryStatus: "failed" } });
   }
   revalidatePath("/app/messages");
+  redirect("/app/messages?ok=sent");
 }
 
 export async function takeHandoff(formData: FormData): Promise<void> {
@@ -67,6 +69,7 @@ export async function takeHandoff(formData: FormData): Promise<void> {
   });
   revalidatePath("/app/messages");
   revalidatePath("/app");
+  redirect("/app/messages?ok=handoff_taken");
 }
 
 export async function resumeBot(formData: FormData): Promise<void> {
@@ -78,6 +81,7 @@ export async function resumeBot(formData: FormData): Promise<void> {
     data: { status: "bot", stateJson: JSON.stringify({ mode: "idle" }) },
   });
   revalidatePath("/app/messages");
+  redirect("/app/messages?ok=bot_resumed");
 }
 
 export async function resolveConversation(formData: FormData): Promise<void> {
@@ -89,6 +93,7 @@ export async function resolveConversation(formData: FormData): Promise<void> {
     data: { status: "resolved", stateJson: JSON.stringify({ mode: "idle" }) },
   });
   revalidatePath("/app/messages");
+  redirect("/app/messages?ok=conv_closed");
 }
 
 export async function updateAppointmentStatus(formData: FormData): Promise<void> {
@@ -96,6 +101,7 @@ export async function updateAppointmentStatus(formData: FormData): Promise<void>
   if (!ctx) return;
   const id = String(formData.get("id") || "");
   const status = String(formData.get("status") || "");
+  const redirectTo = String(formData.get("redirectTo") || "/app");
   if (!["done", "no_show", "cancelled", "booked"].includes(status)) return;
   const extra =
     status === "cancelled"
@@ -109,6 +115,7 @@ export async function updateAppointmentStatus(formData: FormData): Promise<void>
   });
   revalidatePath("/app");
   revalidatePath("/app/calendrier");
+  redirect(`${redirectTo.startsWith("/app") ? redirectTo : "/app"}?ok=${status}`);
 }
 
 export async function blockSlot(formData: FormData): Promise<void> {
@@ -130,6 +137,7 @@ export async function blockSlot(formData: FormData): Promise<void> {
     },
   });
   revalidatePath("/app/calendrier");
+  redirect("/app/calendrier?ok=blocked");
 }
 
 export async function deleteBlockedSlot(formData: FormData): Promise<void> {
@@ -140,6 +148,7 @@ export async function deleteBlockedSlot(formData: FormData): Promise<void> {
     where: { id, businessId: ctx.business.id },
   });
   revalidatePath("/app/calendrier");
+  redirect("/app/calendrier?ok=unblocked");
 }
 
 export async function saveFiche(formData: FormData): Promise<void> {
@@ -200,6 +209,7 @@ export async function saveFiche(formData: FormData): Promise<void> {
     },
   });
   revalidatePath("/app/fiche");
+  redirect("/app/fiche?ok=saved");
 }
 
 export async function saveWhatsAppSettings(formData: FormData): Promise<void> {
@@ -223,6 +233,7 @@ export async function saveWhatsAppSettings(formData: FormData): Promise<void> {
     metadata: { hasToken: Boolean(token || ctx.business.whatsappToken), hasPhoneId: Boolean(phoneId) },
   });
   revalidatePath("/app/parametres");
+  redirect("/app/parametres?ok=saved");
 }
 
 export async function saveService(formData: FormData): Promise<void> {
@@ -259,6 +270,7 @@ export async function saveService(formData: FormData): Promise<void> {
     });
   }
   revalidatePath("/app/fiche");
+  redirect("/app/fiche?ok=saved");
 }
 
 export async function toggleService(formData: FormData): Promise<void> {
@@ -271,6 +283,7 @@ export async function toggleService(formData: FormData): Promise<void> {
     data: { active: !active },
   });
   revalidatePath("/app/fiche");
+  redirect("/app/fiche?ok=updated");
 }
 
 export async function requestManualPayment(formData: FormData): Promise<void> {
@@ -298,6 +311,7 @@ export async function requestManualPayment(formData: FormData): Promise<void> {
     },
   });
   revalidatePath("/app/abonnement");
+  redirect("/app/abonnement?ok=payment_requested");
 }
 
 export async function createManualQuote(formData: FormData): Promise<void> {
@@ -387,6 +401,7 @@ export async function createManualQuote(formData: FormData): Promise<void> {
     },
   });
   revalidatePath("/app/devis");
+  redirect("/app/devis?ok=quote_created");
 }
 
 export async function requestAccountDeletion(): Promise<void> {

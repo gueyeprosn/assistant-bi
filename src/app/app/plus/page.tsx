@@ -9,31 +9,51 @@ import { PageHeader } from "@/components/ui/PageHeader";
 export default async function PlusPage() {
   const lang = await getLang();
   const wa = supportWhatsApp();
-  const items = [
-    { href: "/app/fiche", label: t(lang, "bot"), Icon: IconBot },
-    { href: "/app/devis", label: t(lang, "quotes"), Icon: IconQuote },
-    { href: "/app/relances", label: t(lang, "reminders"), Icon: IconBell },
-    { href: "/app/abonnement", label: t(lang, "billing"), Icon: IconCard },
-    { href: "/app/parametres", label: t(lang, "settings"), Icon: IconGear },
-    { href: "/app/stats", label: t(lang, "stats"), Icon: IconChart },
+  const groups: { title: string; items: { href: string; label: string; Icon: typeof IconBot }[] }[] = [
+    {
+      title: t(lang, "groupBusiness"),
+      items: [
+        { href: "/app/fiche", label: t(lang, "bot"), Icon: IconBot },
+        { href: "/app/parametres", label: t(lang, "settings"), Icon: IconGear },
+      ],
+    },
+    {
+      title: t(lang, "groupActivity"),
+      items: [
+        { href: "/app/devis", label: t(lang, "quotes"), Icon: IconQuote },
+        { href: "/app/relances", label: t(lang, "reminders"), Icon: IconBell },
+        { href: "/app/stats", label: t(lang, "stats"), Icon: IconChart },
+      ],
+    },
+    {
+      title: t(lang, "groupAccount"),
+      items: [{ href: "/app/abonnement", label: t(lang, "billing"), Icon: IconCard }],
+    },
   ];
 
   return (
     <div className="space-y-5">
       <PageHeader title={t(lang, "moreTitle")} help={t(lang, "moreHelp")} />
+      {groups.map((group) => (
+        <section key={group.title} className="space-y-2">
+          <h2 className="text-sm font-bold text-muted uppercase tracking-wide px-1">{group.title}</h2>
+          <div className="grid gap-3">
+            {group.items.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="card flex items-center gap-4 p-4 min-h-16"
+              >
+                <span className="h-12 w-12 rounded-xl bg-soft text-navy flex items-center justify-center shrink-0">
+                  <item.Icon />
+                </span>
+                <span className="text-lg font-bold text-navy">{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
       <div className="grid gap-3">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="card flex items-center gap-4 p-4 min-h-16"
-          >
-            <span className="h-12 w-12 rounded-xl bg-soft text-navy flex items-center justify-center shrink-0">
-              <item.Icon />
-            </span>
-            <span className="text-lg font-bold text-navy">{item.label}</span>
-          </Link>
-        ))}
         <form action={logoutAction}>
           <button className="btn btn-ghost w-full">{t(lang, "quit")}</button>
         </form>

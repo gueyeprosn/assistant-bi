@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
@@ -9,17 +10,21 @@ import { LangToggle } from "./LangToggle";
 import { IconCalendar, IconChat, IconHome, IconMore } from "./Icons";
 import type { Lang } from "@/lib/i18n";
 import { t } from "@/lib/i18n";
+import type { AssistantConnectionStatus } from "@/lib/whatsapp/status";
+import { Toast } from "./ui/Toast";
 
 export function AppShell({
   children,
   businessName,
   impersonating,
   lang,
+  waStatus,
 }: {
   children: React.ReactNode;
   businessName: string;
   impersonating?: boolean;
   lang: Lang;
+  waStatus?: AssistantConnectionStatus;
 }) {
   const path = usePathname();
   const tabs = [
@@ -46,9 +51,28 @@ export function AppShell({
             <Logo className="h-8 w-8 shrink-0" />
             <span className="truncate">
               <span className="block text-sm font-bold leading-tight text-navy">Assistant Bi</span>
-              <span className="block text-xs text-muted truncate">{businessName}</span>
+              <span className="flex items-center gap-1.5 min-w-0">
+                <span className="text-xs text-muted truncate">{businessName}</span>
+                {waStatus ? (
+                  <span
+                    className={`h-2 w-2 rounded-full shrink-0 ${
+                      waStatus === "connected" ? "bg-success" : "bg-muted"
+                    }`}
+                    aria-hidden
+                  />
+                ) : null}
+              </span>
             </span>
           </Link>
+          {waStatus ? (
+            <span
+              className={`badge shrink-0 hidden sm:inline-flex ${
+                waStatus === "connected" ? "bg-success-bg text-success" : "bg-soft text-muted"
+              }`}
+            >
+              {waStatus === "connected" ? t(lang, "waStatusActive") : t(lang, "waStatusDemo")}
+            </span>
+          ) : null}
           <div className="flex items-center gap-2">
             <LangToggle lang={lang} />
             <form action={logoutAction} className="hidden sm:block">
@@ -60,6 +84,9 @@ export function AppShell({
         </div>
       </header>
       <main className="max-w-3xl mx-auto px-4 py-5 pb-28">{children}</main>
+      <Suspense fallback={null}>
+        <Toast lang={lang} />
+      </Suspense>
       <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-line z-20">
         <div className="max-w-3xl mx-auto grid grid-cols-4">
           {tabs.map((l) => {

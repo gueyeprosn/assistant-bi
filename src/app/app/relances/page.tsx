@@ -4,6 +4,7 @@ import { formatDateTime } from "@/lib/format";
 import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default async function RelancesPage() {
   const ctx = await requireOwner();
@@ -39,7 +40,7 @@ export default async function RelancesPage() {
 
       <section className="card overflow-hidden">
         {upcoming.length === 0 ? (
-          <p className="px-4 py-8 text-muted">{t(lang, "reminderNone")}</p>
+          <EmptyState title={t(lang, "emptyRemindersTitle")} description={t(lang, "reminderNone")} />
         ) : (
           <ul className="divide-y divide-line">
             {upcoming.map((a) => (
@@ -61,7 +62,7 @@ export default async function RelancesPage() {
       <section>
         <h2 className="text-xl font-bold text-navy mb-3">{t(lang, "followMissed")}</h2>
         {missed.length === 0 ? (
-          <p className="text-muted">{t(lang, "noMissed")}</p>
+          <EmptyState title={t(lang, "emptyMissedTitle")} description={t(lang, "noMissed")} />
         ) : (
           <ul className="card divide-y divide-line">
             {missed.map((a) => (

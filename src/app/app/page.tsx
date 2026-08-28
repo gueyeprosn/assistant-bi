@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { addDays, formatDateTime, formatFcfa, planLabel, startOfDayDakar, statusLabel, toYmd } from "@/lib/format";
+import { addDays, formatFcfa, planLabel, startOfDayDakar, statusLabel, toYmd } from "@/lib/format";
 import { rdvLimit } from "@/lib/plans";
-import { updateAppointmentStatus } from "@/app/actions/business";
 import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { ficheCompleteness } from "@/lib/fiche";
@@ -11,6 +10,8 @@ import { displayPhone } from "@/lib/phone";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { KpiCard } from "@/components/ui/KpiCard";
 import { MiniBars } from "@/components/ui/MiniBars";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { AppointmentCard } from "@/components/AppointmentCard";
 
 export default async function TodayPage() {
   const ctx = await requireOwner();
@@ -124,23 +125,25 @@ export default async function TodayPage() {
       {ready.percent < 80 && (
         <Link
           href="/app/fiche"
-          className="card px-4 py-4 bg-gold/15 border-gold block min-h-12"
+          className="card px-4 py-4 bg-info-bg border-info block min-h-12"
         >
-          <div className="font-bold text-navy">
+          <div className="font-bold text-info">
             {t(lang, "readyPct")} {ready.percent} %
           </div>
           <div className="mt-2 h-3 rounded-full bg-white overflow-hidden">
-            <div className="h-full bg-gold" style={{ width: `${ready.percent}%` }} />
+            <div className="h-full bg-info" style={{ width: `${ready.percent}%` }} />
           </div>
-          <div className="mt-2 font-semibold text-navy underline">{t(lang, "completeFiche")}</div>
+          <div className="mt-2 font-semibold text-info underline">{t(lang, "completeFiche")}</div>
         </Link>
       )}
 
       {limit && monthCount >= limit && (
-        <div className="card px-4 py-3 border-gold bg-gold/15 font-medium">{t(lang, "capHit")}</div>
+        <div className="card px-4 py-3 border-warning bg-warning-bg text-warning font-medium">
+          {t(lang, "capHit")}
+        </div>
       )}
       {pendingPay && (
-        <div className="card px-4 py-3 bg-gold/15 font-medium">
+        <div className="card px-4 py-3 bg-money-bg text-money font-medium">
           {t(lang, "payPending")} · {formatFcfa(pendingPay.amountFcfa)}
         </div>
       )}
@@ -185,38 +188,22 @@ export default async function TodayPage() {
           </Link>
         </div>
         {todayAppts.length === 0 ? (
-          <p className="px-4 py-8 text-muted">{t(lang, "noneToday")}</p>
+          <EmptyState
+            title={t(lang, "emptyTodayTitle")}
+            description={t(lang, "noneToday")}
+            ctaLabel={t(lang, "viewWeek")}
+            ctaHref="/app/calendrier"
+          />
         ) : (
           <ul className="divide-y divide-line">
             {todayAppts.map((a) => (
-              <li key={a.id} className="px-4 py-4 space-y-3">
-                <div>
-                  <div className="font-bold text-lg">{a.customer.name || a.customer.phone}</div>
-                  <div className="text-muted">
-                    {formatDateTime(a.startsAt)}
-                    {a.service ? ` · ${a.service.name}` : ""}
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <StatusBtn id={a.id} status="done" label={t(lang, "done")} />
-                  <StatusBtn id={a.id} status="no_show" label={t(lang, "absent")} />
-                  <StatusBtn id={a.id} status="cancelled" label={t(lang, "cancel")} />
-                </div>
+              <li key={a.id} className="px-4 py-4">
+                <AppointmentCard appt={a} lang={lang} redirectTo="/app" />
               </li>
             ))}
           </ul>
         )}
       </section>
     </div>
-  );
-}
-
-function StatusBtn({ id, status, label }: { id: string; status: string; label: string }) {
-  return (
-    <form action={updateAppointmentStatus}>
-      <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="status" value={status} />
-      <button className="btn btn-ghost w-full text-sm px-2">{label}</button>
-    </form>
   );
 }

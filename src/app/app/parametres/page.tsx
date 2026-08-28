@@ -6,6 +6,7 @@ import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CopyField } from "@/components/ui/CopyField";
 import { LangToggle } from "@/components/LangToggle";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { parseTemplateMapping } from "@/lib/whatsapp/templates";
 
 export default async function SettingsPage() {
@@ -33,61 +34,67 @@ export default async function SettingsPage() {
       </section>
 
       <form action={saveWhatsAppSettings} className="card p-4 space-y-4">
-        <CopyField
-          value={webhook}
-          label={t(lang, "waAddress")}
-          help={t(lang, "waAddressHelp")}
-          copyLabel={t(lang, "copy")}
-          copiedLabel={t(lang, "copied")}
-        />
-        <label className="block font-bold">
-          {t(lang, "waKey")}
-          <span className="block font-normal text-muted text-base mt-1">{t(lang, "waKeyHelp")}</span>
-          <input
-            name="whatsappToken"
-            type="password"
-            autoComplete="off"
-            className="field mt-2"
-            placeholder={hasToken ? t(lang, "waKeyKept") : ""}
-          />
-        </label>
-        <label className="block font-bold">
-          {t(lang, "waCode")}
-          <span className="block font-normal text-muted text-base mt-1">{t(lang, "waCodeHelp")}</span>
-          <input
-            name="whatsappPhoneNumberId"
-            defaultValue={ctx.business.whatsappPhoneNumberId}
-            className="field mt-2"
-            autoComplete="off"
-          />
-        </label>
-        <div className="border-t pt-4 space-y-3">
-          <p className="font-bold">{t(lang, "waTemplates")}</p>
-          <p className="text-muted text-base">{t(lang, "waTemplatesHelp")}</p>
-          {templateFields.map(({ usage, label }) => (
-            <div key={usage} className="grid grid-cols-2 gap-2">
-              <label className="block text-sm font-medium">
-                {label} — {t(lang, "waTemplateName")}
-                <input
-                  name={`tpl_${usage}_name`}
-                  defaultValue={templates[usage]?.name ?? ""}
-                  className="field mt-1"
-                  autoComplete="off"
-                />
-              </label>
-              <label className="block text-sm font-medium">
-                {t(lang, "waTemplateLang")}
-                <input
-                  name={`tpl_${usage}_lang`}
-                  defaultValue={templates[usage]?.lang || "fr"}
-                  className="field mt-1"
-                  autoComplete="off"
-                />
-              </label>
+        <details>
+          <summary className="font-bold cursor-pointer">{t(lang, "waAdvancedToggle")}</summary>
+          <p className="text-muted text-base mt-2">{t(lang, "waAdvancedHelp")}</p>
+          <div className="space-y-4 mt-4">
+            <CopyField
+              value={webhook}
+              label={t(lang, "waAddress")}
+              help={t(lang, "waAddressHelp")}
+              copyLabel={t(lang, "copy")}
+              copiedLabel={t(lang, "copied")}
+            />
+            <label className="block font-bold">
+              {t(lang, "waKey")}
+              <span className="block font-normal text-muted text-base mt-1">{t(lang, "waKeyHelp")}</span>
+              <input
+                name="whatsappToken"
+                type="password"
+                autoComplete="off"
+                className="field mt-2"
+                placeholder={hasToken ? t(lang, "waKeyKept") : ""}
+              />
+            </label>
+            <label className="block font-bold">
+              {t(lang, "waCode")}
+              <span className="block font-normal text-muted text-base mt-1">{t(lang, "waCodeHelp")}</span>
+              <input
+                name="whatsappPhoneNumberId"
+                defaultValue={ctx.business.whatsappPhoneNumberId}
+                className="field mt-2"
+                autoComplete="off"
+              />
+            </label>
+            <div className="border-t pt-4 space-y-3">
+              <p className="font-bold">{t(lang, "waTemplates")}</p>
+              <p className="text-muted text-base">{t(lang, "waTemplatesHelp")}</p>
+              {templateFields.map(({ usage, label }) => (
+                <div key={usage} className="grid grid-cols-2 gap-2">
+                  <label className="block text-sm font-medium">
+                    {label} — {t(lang, "waTemplateName")}
+                    <input
+                      name={`tpl_${usage}_name`}
+                      defaultValue={templates[usage]?.name ?? ""}
+                      className="field mt-1"
+                      autoComplete="off"
+                    />
+                  </label>
+                  <label className="block text-sm font-medium">
+                    {t(lang, "waTemplateLang")}
+                    <input
+                      name={`tpl_${usage}_lang`}
+                      defaultValue={templates[usage]?.lang || "fr"}
+                      className="field mt-1"
+                      autoComplete="off"
+                    />
+                  </label>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <button className="btn btn-primary w-full">{t(lang, "save")}</button>
+          </div>
+        </details>
+        <SubmitButton>{t(lang, "save")}</SubmitButton>
       </form>
     </div>
   );

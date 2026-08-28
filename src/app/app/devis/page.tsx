@@ -8,6 +8,7 @@ import { t, type I18nKey } from "@/lib/i18n";
 import { parseStoredQuoteLines } from "@/lib/quotes";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CopyQuote } from "@/components/ui/CopyQuote";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { QuoteComposer } from "@/components/QuoteComposer";
 
 const QUOTE_ERRORS: Record<string, I18nKey> = {
@@ -60,7 +61,7 @@ export default async function QuotesPage({
             services={services.map((s) => ({ id: s.id, name: s.name, priceFcfa: s.priceFcfa }))}
           />
           {quotes.length === 0 ? (
-            <p className="text-muted">{t(lang, "noQuotes")}</p>
+            <EmptyState title={t(lang, "emptyQuotesTitle")} description={t(lang, "noQuotes")} />
           ) : (
             <ul className="space-y-3">
               {quotes.map((q) => {

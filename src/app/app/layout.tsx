@@ -4,6 +4,7 @@ import { requireOwner } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { getLang } from "@/lib/lang";
 import { getSubscriptionStatus } from "@/lib/plans";
+import { getAssistantConnectionStatus } from "@/lib/whatsapp/status";
 
 export default async function DashboardLayout({
   children,
@@ -18,11 +19,13 @@ export default async function DashboardLayout({
   if (access.blocked && !path.startsWith("/app/abonnement")) {
     redirect("/app/abonnement");
   }
+  const waStatus = getAssistantConnectionStatus(ctx.business);
   return (
     <AppShell
       businessName={ctx.business.name}
       impersonating={ctx.session.impersonating}
       lang={lang}
+      waStatus={waStatus}
     >
       {children}
     </AppShell>

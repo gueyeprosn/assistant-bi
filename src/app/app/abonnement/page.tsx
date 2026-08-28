@@ -7,6 +7,7 @@ import { requestManualPayment, requestAccountDeletion } from "@/app/actions/busi
 import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export default async function BillingPage() {
   const ctx = await requireOwner();
@@ -58,12 +59,12 @@ export default async function BillingPage() {
               <div className="text-3xl font-bold text-navy">{formatFcfa(p.priceFcfa)}</div>
               <p className="text-muted">/ mois · {p.target}</p>
               <div className="grid grid-cols-1 gap-2">
-                <button name="channel" value="wave" className="btn btn-primary w-full">
+                <SubmitButton name="channel" value="wave" className="btn btn-primary w-full">
                   {t(lang, "payWave")}
-                </button>
-                <button name="channel" value="orange_money" className="btn btn-ghost w-full">
+                </SubmitButton>
+                <SubmitButton name="channel" value="orange_money" className="btn btn-ghost w-full">
                   {t(lang, "payOm")}
-                </button>
+                </SubmitButton>
               </div>
             </form>
           );
@@ -96,7 +97,7 @@ export default async function BillingPage() {
       <form action={requestAccountDeletion} className="card p-4 space-y-2">
         <p className="font-bold">{t(lang, "deleteAccount")}</p>
         <p className="text-muted">{t(lang, "deleteAccountHelp")}</p>
-        <button className="btn btn-ghost w-full">{t(lang, "deleteAccount")}</button>
+        <SubmitButton className="btn btn-danger w-full">{t(lang, "deleteAccount")}</SubmitButton>
       </form>
     </div>
   );

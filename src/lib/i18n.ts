@@ -298,6 +298,66 @@ export const DICT = {
     signupReady: "Après enregistrement, l’IA est immédiatement opérationnelle.",
     yes: "Oui",
     no: "Non",
+
+    // Statut assistant
+    waStatusActive: "Assistant actif",
+    waStatusDemo: "Mode démo · WhatsApp non connecté",
+
+    // Confirmations (toasts)
+    toastSaved: "Enregistré",
+    toastSent: "Message envoyé",
+    toastBlocked: "Créneau fermé",
+    toastUnblocked: "Créneau rouvert",
+    toastHandoffTaken: "Vous avez repris la conversation",
+    toastBotResumed: "Le bot a repris la conversation",
+    toastConvClosed: "Conversation clôturée",
+    toastPaymentRequested: "Paiement enregistré, en attente de confirmation",
+    toastQuoteCreated: "Devis créé",
+    toastUpdated: "Mis à jour",
+    toastDone: "Rendez-vous marqué fait",
+    toastNoShow: "Client marqué absent",
+    toastCancelled: "Rendez-vous annulé",
+
+    // Empty states
+    emptyTodayTitle: "Aucun rendez-vous aujourd’hui",
+    emptyConvTitle: "Aucune conversation",
+    emptyAgendaTitle: "Agenda vide",
+    emptyQuotesTitle: "Aucun devis",
+    emptyRemindersTitle: "Aucun rendez-vous à venir",
+    emptyMissedTitle: "Aucune absence",
+    viewWeek: "Voir la semaine",
+
+    // Rendez-vous — actions
+    contactWa: "Contacter sur WhatsApp",
+    statusBooked: "Confirmé",
+    statusDone: "Fait",
+    statusNoShow: "Absent",
+    statusCancelled: "Annulé",
+    statusReminded: "Rappel envoyé",
+
+    // Onboarding — étapes
+    stepLabel: "Étape",
+    stepOf: "sur",
+    wizardNext: "Suivant",
+    wizardBack: "Précédent",
+
+    // Fiche — sections
+    tabIdentity: "Identité",
+    tabHours: "Horaires",
+    tabGreeting: "Message d’accueil",
+    tabFaq: "Questions fréquentes",
+    tabBooking: "Réservation",
+    tabReminders: "Rappels",
+
+    // WhatsApp — réglage avancé
+    waAdvancedToggle: "Réglage avancé (technique)",
+    waAdvancedHelp:
+      "Normalement configuré par l’équipe Assistant Bi lors de votre mise en route. Ne modifiez que si on vous l’a demandé.",
+
+    // Menu Plus — groupes
+    groupBusiness: "Mon commerce",
+    groupActivity: "Activité",
+    groupAccount: "Compte",
   },
   wo: {
     brand: "Assistant Bi",
@@ -596,6 +656,66 @@ export const DICT = {
     signupReady: "Su nga aarée, IA bi dafa tàmbali léegi.",
     yes: "Waaw",
     no: "Déedéet",
+
+    // Statut assistant
+    waStatusActive: "Assistant bi dafa liggéey",
+    waStatusDemo: "Mode démo · WhatsApp connectéwul",
+
+    // Confirmations (toasts)
+    toastSaved: "Save na",
+    toastSent: "Bataaxal bi yónnee na",
+    toastBlocked: "Créneau bi tëj na",
+    toastUnblocked: "Créneau bi ubbi na",
+    toastHandoffTaken: "Yaw nga jël waxtaan bi",
+    toastBotResumed: "Bot bi jël na waxtaan bi",
+    toastConvClosed: "Waxtaan bi jeex na",
+    toastPaymentRequested: "Fayéef bi save na, ñu ngi xaar confirmation",
+    toastQuoteCreated: "Devis bi bind na",
+    toastUpdated: "Update na",
+    toastDone: "Rendez-vous bi def na",
+    toastNoShow: "Kiliyaan bi ñëwul",
+    toastCancelled: "Rendez-vous bi annulé na",
+
+    // Empty states
+    emptyTodayTitle: "Amul rendez-vous tey",
+    emptyConvTitle: "Amul waxtaan",
+    emptyAgendaTitle: "Agenda bi neen na",
+    emptyQuotesTitle: "Amul devis",
+    emptyRemindersTitle: "Amul rendez-vous bu ñëw",
+    emptyMissedTitle: "Kenn ñëwul",
+    viewWeek: "Gis ayubés bi",
+
+    // Rendez-vous — actions
+    contactWa: "Wax ci WhatsApp",
+    statusBooked: "Confirmé",
+    statusDone: "Def na",
+    statusNoShow: "Ñëwul",
+    statusCancelled: "Annulé",
+    statusReminded: "Fàttali yónnee na",
+
+    // Onboarding — étapes
+    stepLabel: "Ndaje",
+    stepOf: "ci",
+    wizardNext: "Suivant",
+    wizardBack: "Rag",
+
+    // Fiche — sections
+    tabIdentity: "Kilifa",
+    tabHours: "Waxtu",
+    tabGreeting: "Bataaxal bu njëkk",
+    tabFaq: "Laaj yu ñuy laaj bari",
+    tabBooking: "Rendez-vous",
+    tabReminders: "Fàttali",
+
+    // WhatsApp — réglage avancé
+    waAdvancedToggle: "Réglage bu jóge (technique)",
+    waAdvancedHelp:
+      "Équipe Assistant Bi moo koy tegal bu njëkk. Bul ko soppi lu dul ñu ne la ko def.",
+
+    // Menu Plus — groupes
+    groupBusiness: "Sa liggéey",
+    groupActivity: "Liggéey bi",
+    groupAccount: "Sa compte",
   },
 } as const;
 

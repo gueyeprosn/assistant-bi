@@ -13,6 +13,18 @@
   --soft: #f4f6f9;
   --wa: #075e54;
   --destructive: #b42318;
+
+  /* Sémantique d'état — ne pas réutiliser --gold pour de l'info/alerte/argent */
+  --info: #0b6bcb;
+  --info-bg: #eaf3fc;
+  --success: #1a7f37;
+  --success-bg: #e9f7ee;
+  --warning: #9a6b00;
+  --warning-bg: #fdf3d9;
+  --money: #6b4e0a;
+  --money-bg: #f6ecd6;
+  --danger: #b42318;
+  --danger-bg: #fef3f2;
 }
 
 @theme inline {
@@ -27,6 +39,16 @@
   --color-line: var(--line);
   --color-soft: var(--soft);
   --color-destructive: var(--destructive);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-money: var(--money);
+  --color-money-bg: var(--money-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
   --font-sans: var(--font-source);
 }
 
@@ -114,6 +136,27 @@ a,
   background: var(--gold-2);
 }
 
+.btn-danger {
+  background: #fff;
+  color: var(--danger);
+  border: 2px solid var(--danger);
+}
+
+.btn-danger:hover {
+  background: var(--danger-bg);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .landing a:focus-visible,
 .landing button:focus-visible,
 .landing summary:focus-visible {
@@ -125,6 +168,22 @@ a,
   background-color: #ece5dd;
   background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
   background-size: 18px 18px;
+}
+
+.spinner {
+  display: inline-block;
+  height: 1.1em;
+  width: 1.1em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

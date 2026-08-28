@@ -1,10 +1,13 @@
 import { requireOwner } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { formatDate, formatDateTime, toYmd } from "@/lib/format";
-import { blockSlot, deleteBlockedSlot, updateAppointmentStatus } from "@/app/actions/business";
+import { blockSlot, deleteBlockedSlot } from "@/app/actions/business";
 import { getLang } from "@/lib/lang";
 import { t } from "@/lib/i18n";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { SubmitButton } from "@/components/ui/SubmitButton";
+import { AppointmentCard } from "@/components/AppointmentCard";
 
 export default async function CalendarPage() {
   const ctx = await requireOwner();
@@ -39,28 +42,24 @@ export default async function CalendarPage() {
     <div className="space-y-5">
       <PageHeader title={t(lang, "agenda")} help={t(lang, "agendaHelp")} />
 
-      <form action={blockSlot} className="card p-4 space-y-3">
-        <p className="font-bold">{t(lang, "blockSlot")}</p>
-        <label className="block font-semibold">
-          {t(lang, "date")}
-          <input type="date" name="date" required className="field mt-1" />
-        </label>
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block font-semibold">
-            {t(lang, "start")}
-            <input type="time" name="start" defaultValue="09:00" className="field mt-1" />
-          </label>
-          <label className="block font-semibold">
-            {t(lang, "end")}
-            <input type="time" name="end" defaultValue="19:00" className="field mt-1" />
-          </label>
+      {groups.size === 0 ? (
+        <EmptyState title={t(lang, "emptyAgendaTitle")} description={t(lang, "noUpcoming")} />
+      ) : (
+        <div className="space-y-4">
+          {[...groups.entries()].map(([day, list]) => (
+            <section key={day} className="card overflow-hidden">
+              <h2 className="px-4 py-3 border-b border-line font-bold text-navy">{formatDate(list[0].startsAt)}</h2>
+              <ul className="divide-y divide-line">
+                {list.map((a) => (
+                  <li key={a.id} className="px-4 py-4">
+                    <AppointmentCard appt={a} lang={lang} redirectTo="/app/calendrier" />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
         </div>
-        <label className="block font-semibold">
-          {t(lang, "reason")}
-          <input name="reason" className="field mt-1" />
-        </label>
-        <button className="btn btn-primary w-full">{t(lang, "block")}</button>
-      </form>
+      )}
 
       {blocked.length > 0 && (
         <ul className="space-y-2">
@@ -71,43 +70,37 @@ export default async function CalendarPage() {
               </span>
               <form action={deleteBlockedSlot}>
                 <input type="hidden" name="id" value={b.id} />
-                <button className="btn btn-ghost min-h-12">{t(lang, "release")}</button>
+                <SubmitButton className="btn btn-ghost min-h-12">{t(lang, "release")}</SubmitButton>
               </form>
             </li>
           ))}
         </ul>
       )}
 
-      {groups.size === 0 ? (
-        <p className="card px-4 py-8 text-muted">{t(lang, "noUpcoming")}</p>
-      ) : (
-        <div className="space-y-4">
-          {[...groups.entries()].map(([day, list]) => (
-            <section key={day} className="card overflow-hidden">
-              <h2 className="px-4 py-3 border-b border-line font-bold text-navy">{formatDate(list[0].startsAt)}</h2>
-              <ul className="divide-y divide-line">
-                {list.map((a) => (
-                  <li key={a.id} className="px-4 py-4 space-y-3">
-                    <div>
-                      <div className="font-bold text-lg">{a.customer.name || a.customer.phone}</div>
-                      <div className="text-muted">
-                        {formatDateTime(a.startsAt)} · {a.service?.name || "—"}
-                      </div>
-                    </div>
-                    {a.status !== "cancelled" && (
-                      <form action={updateAppointmentStatus}>
-                        <input type="hidden" name="id" value={a.id} />
-                        <input type="hidden" name="status" value="cancelled" />
-                        <button className="btn btn-ghost w-full">{t(lang, "cancel")}</button>
-                      </form>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
-      )}
+      <details className="card p-4">
+        <summary className="font-bold cursor-pointer">{t(lang, "blockSlot")}</summary>
+        <form action={blockSlot} className="space-y-3 mt-3">
+          <label className="block font-semibold">
+            {t(lang, "date")}
+            <input type="date" name="date" required className="field mt-1" />
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block font-semibold">
+              {t(lang, "start")}
+              <input type="time" name="start" defaultValue="09:00" className="field mt-1" />
+            </label>
+            <label className="block font-semibold">
+              {t(lang, "end")}
+              <input type="time" name="end" defaultValue="19:00" className="field mt-1" />
+            </label>
+          </div>
+          <label className="block font-semibold">
+            {t(lang, "reason")}
+            <input name="reason" className="field mt-1" />
+          </label>
+          <SubmitButton>{t(lang, "block")}</SubmitButton>
+        </form>
+      </details>
     </div>
   );
 }
