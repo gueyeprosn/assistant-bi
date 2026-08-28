@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { formatDate, formatDateTime, formatFcfa, planLabel, statusLabel } from "@/lib/format";
 import { displayPhone } from "@/lib/phone";
+import { parseTemplateMapping } from "@/lib/whatsapp/templates";
 import {
   extendTrial,
   impersonateBusiness,
@@ -52,6 +53,13 @@ export default async function AdminCommerceDetailPage({
   const owner = business.users.find((u) => u.role === "owner") || business.users[0];
   const cleanPhone = (business.ownerPhone || owner?.phone || "").replace(/\D/g, "");
   const waUrl = cleanPhone ? `https://wa.me/${cleanPhone}` : "";
+  const templates = parseTemplateMapping(business.whatsappTemplatesJson);
+  const templateFields: { usage: keyof typeof templates; label: string }[] = [
+    { usage: "reminder_j1", label: "Rappel de rendez-vous (veille)" },
+    { usage: "new_appointment", label: "Nouveau rendez-vous (patron)" },
+    { usage: "handoff", label: "Client en attente (patron)" },
+    { usage: "cancelled", label: "Rendez-vous annulé (patron)" },
+  ];
 
   return (
     <div className="space-y-8">
@@ -272,6 +280,34 @@ export default async function AdminCommerceDetailPage({
               placeholder="Jeton Meta permanent (EAA...)"
               className="field text-sm"
             />
+          </div>
+          <div className="sm:col-span-2 border-t border-line pt-3 space-y-2">
+            <p className="text-xs font-bold text-navy">Modèles de message (hors fenêtre de 24h)</p>
+            <p className="text-xs text-muted">
+              Nom et langue exacts des modèles approuvés dans Meta Business Manager. Sans modèle configuré, le message correspondant n&apos;est pas envoyé une fois la fenêtre de 24h dépassée.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {templateFields.map(({ usage, label }) => (
+                <div key={usage} className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-navy">{label} — nom</label>
+                    <input
+                      name={`tpl_${usage}_name`}
+                      defaultValue={templates[usage]?.name ?? ""}
+                      className="field text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-navy">Langue</label>
+                    <input
+                      name={`tpl_${usage}_lang`}
+                      defaultValue={templates[usage]?.lang || "fr"}
+                      className="field text-sm"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="sm:col-span-2 flex justify-end">
             <button className="btn btn-primary text-xs min-h-10 px-5">

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireOwner } from "@/lib/auth";
 import { getWhatsAppAdapter } from "@/lib/whatsapp/cloud";
+import { serializeTemplateMapping, templateMappingFromFormEntries } from "@/lib/whatsapp/templates";
 import { isValidSnPhone, normalizeSnPhone } from "@/lib/phone";
 import { buildQuoteText, parseQuoteDraft, type QuoteLine } from "@/lib/quotes";
 import { addDays } from "@/lib/format";
@@ -206,10 +207,12 @@ export async function saveWhatsAppSettings(formData: FormData): Promise<void> {
   if (!ctx) return;
   const token = String(formData.get("whatsappToken") || "").trim();
   const phoneId = String(formData.get("whatsappPhoneNumberId") || "").trim();
+  const templates = templateMappingFromFormEntries((key) => formData.get(key) as string | null);
   await prisma.business.update({
     where: { id: ctx.business.id },
     data: {
       whatsappPhoneNumberId: phoneId,
+      whatsappTemplatesJson: serializeTemplateMapping(templates),
       ...(token ? { whatsappToken: token } : {}),
     },
   });

@@ -10,6 +10,7 @@ import { writeAudit } from "@/server/services/audit";
 import { createDbSession, revokeSession, setSessionCookie, IMPERSONATE_TTL } from "@/lib/auth/session";
 import { hashPin } from "@/lib/auth/pin";
 import { normalizeSnPhone } from "@/lib/phone";
+import { serializeTemplateMapping, templateMappingFromFormEntries } from "@/lib/whatsapp/templates";
 
 export async function confirmPayment(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
@@ -203,11 +204,13 @@ export async function updateBusinessWhatsAppConfig(formData: FormData): Promise<
   const id = String(formData.get("id") || "");
   const whatsappPhoneNumberId = String(formData.get("whatsappPhoneNumberId") || "").trim();
   const whatsappToken = String(formData.get("whatsappToken") || "").trim();
+  const templates = templateMappingFromFormEntries((key) => formData.get(key) as string | null);
 
   await prisma.business.update({
     where: { id },
     data: {
       whatsappPhoneNumberId,
+      whatsappTemplatesJson: serializeTemplateMapping(templates),
       ...(whatsappToken ? { whatsappToken } : {}),
     },
   });

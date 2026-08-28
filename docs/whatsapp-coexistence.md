@@ -37,3 +37,17 @@ Les templates Meta (messages hors fenêtre 24 h) seront nécessaires en producti
 ## Alternative BSP Afrique
 
 Si le compte Tech Provider Meta est trop long : 360dialog / Infobip. L’interface `WhatsAppAdapter` (`src/lib/whatsapp/types.ts`) reste la même.
+
+## Modèles (templates) — messages hors fenêtre de 24h
+
+Meta n’autorise le texte libre que dans les 24h suivant le dernier message reçu du destinataire. Passé ce délai (cas quasi systématique du **rappel J-1** et fréquent des **notifications patron**), seul un modèle pré-approuvé peut être envoyé — sinon Meta rejette l’appel.
+
+1. Faire approuver les modèles dans Meta Business Manager (un par usage, variables en paramètres positionnels du corps du message) :
+   - `reminder_j1` — variables : nom du commerce, date, heure, prestation
+   - `new_appointment` — variables : nom du commerce, nom du client, date/heure
+   - `handoff` — variables : nom du commerce, nom du client, dernier message
+   - `cancelled` — variables : nom du commerce, nom du client, date/heure
+2. Renseigner le nom exact et la langue de chaque modèle depuis `/app/parametres` (le commerce) ou `/admin/commerces/[id]` (l’opérateur).
+3. Le système calcule la fenêtre de 24h à chaque envoi (`src/lib/whatsapp/window.ts`) et choisit automatiquement texte libre (fenêtre ouverte), modèle (fenêtre fermée + modèle configuré), ou aucun envoi + log (fenêtre fermée + modèle manquant).
+
+Voir `specs/002-whatsapp-templates/` pour la spécification complète.

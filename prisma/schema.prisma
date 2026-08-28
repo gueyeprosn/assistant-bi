@@ -66,6 +66,7 @@ model Business {
   ownerPhone         String
   whatsappToken      String    @default("")
   whatsappPhoneNumberId String @default("")
+  whatsappTemplatesJson String @default("{}")
   slotStepMin        Int       @default(30)
   defaultDurationMin Int       @default(60)
   secondaryPhone     String    @default("")

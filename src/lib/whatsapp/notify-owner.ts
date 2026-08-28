@@ -1,6 +1,7 @@
 import { prisma } from "../db";
 import { formatDate, formatFcfa, formatTime } from "../format";
-import { getWhatsAppAdapter } from "./cloud";
+import { cloudAdapter, getWhatsAppAdapter } from "./cloud";
+import { resolveSendMode } from "./templates";
 
 export async function notifyOwnerNewAppointment(opts: {
   businessId: string;
@@ -13,7 +14,7 @@ export async function notifyOwnerNewAppointment(opts: {
   try {
     const biz = await prisma.business.findUnique({
       where: { id: opts.businessId },
-      select: { id: true, name: true, ownerPhone: true, defaultLang: true },
+      select: { id: true, name: true, ownerPhone: true, defaultLang: true, whatsappTemplatesJson: true },
     });
     if (!biz?.ownerPhone) return;
 
@@ -27,6 +28,19 @@ export async function notifyOwnerNewAppointment(opts: {
         ? `🔔 *Nouveau RDV — ${biz.name}*\n\n👤 Client : ${name}\n🗓️ Waxtu : ${when}\n✂️ Prestation : ${svc}${price}\n\nAccédez à votre agenda : /app/calendrier`
         : `🔔 *Nouveau RDV — ${biz.name}*\n\n👤 Client : ${name}\n🗓️ Date : ${when}\n✂️ Prestation : ${svc}${price}\n\nConsultez votre agenda : /app/calendrier`;
 
+    const sendMode = await resolveSendMode(biz.id, biz.ownerPhone, "new_appointment", biz.whatsappTemplatesJson);
+    if (sendMode.mode === "skip") {
+      console.warn(`[notify-owner] modèle "new_appointment" manquant pour ${biz.id}, notification non envoyée`);
+      return;
+    }
+    if (sendMode.mode === "template") {
+      await cloudAdapter.sendTemplate(
+        biz.ownerPhone,
+        { name: sendMode.template.name, lang: sendMode.template.lang, params: [biz.name, name, when, opts.serviceName ?? ""] },
+        biz.id,
+      );
+      return;
+    }
     const adapter = getWhatsAppAdapter();
     await adapter.sendText(biz.ownerPhone, text, biz.id);
   } catch (err) {
@@ -43,7 +57,7 @@ export async function notifyOwnerHandoff(opts: {
   try {
     const biz = await prisma.business.findUnique({
       where: { id: opts.businessId },
-      select: { id: true, name: true, ownerPhone: true, defaultLang: true },
+      select: { id: true, name: true, ownerPhone: true, defaultLang: true, whatsappTemplatesJson: true },
     });
     if (!biz?.ownerPhone) return;
 
@@ -54,6 +68,19 @@ export async function notifyOwnerHandoff(opts: {
         ? `💬 *Client en attente — ${biz.name}*\n\n👤 ${name} dafa laaj wax ak patron bi.\n📝 Dernier message : « ${opts.lastMessage} »\n\nRépondez au client depuis le tableau de bord : /app/messages`
         : `💬 *Client en attente — ${biz.name}*\n\n👤 ${name} souhaite vous parler.\n📝 Dernier message : « ${opts.lastMessage} »\n\nRépondez au client depuis le tableau de bord : /app/messages`;
 
+    const sendMode = await resolveSendMode(biz.id, biz.ownerPhone, "handoff", biz.whatsappTemplatesJson);
+    if (sendMode.mode === "skip") {
+      console.warn(`[notify-owner] modèle "handoff" manquant pour ${biz.id}, notification non envoyée`);
+      return;
+    }
+    if (sendMode.mode === "template") {
+      await cloudAdapter.sendTemplate(
+        biz.ownerPhone,
+        { name: sendMode.template.name, lang: sendMode.template.lang, params: [biz.name, name, opts.lastMessage] },
+        biz.id,
+      );
+      return;
+    }
     const adapter = getWhatsAppAdapter();
     await adapter.sendText(biz.ownerPhone, text, biz.id);
   } catch (err) {
@@ -70,7 +97,7 @@ export async function notifyOwnerAppointmentCancelled(opts: {
   try {
     const biz = await prisma.business.findUnique({
       where: { id: opts.businessId },
-      select: { id: true, name: true, ownerPhone: true, defaultLang: true },
+      select: { id: true, name: true, ownerPhone: true, defaultLang: true, whatsappTemplatesJson: true },
     });
     if (!biz?.ownerPhone) return;
 
@@ -82,6 +109,19 @@ export async function notifyOwnerAppointmentCancelled(opts: {
         ? `⚠️ *RDV Annulé — ${biz.name}*\n\n👤 Client : ${name}\n🗓️ Date : ${when}\n\nLe créneau est à nouveau disponible pour d'autres clients.`
         : `⚠️ *RDV Annulé — ${biz.name}*\n\n👤 Client : ${name}\n🗓️ Date : ${when}\n\nLe créneau est automatiquement libéré.`;
 
+    const sendMode = await resolveSendMode(biz.id, biz.ownerPhone, "cancelled", biz.whatsappTemplatesJson);
+    if (sendMode.mode === "skip") {
+      console.warn(`[notify-owner] modèle "cancelled" manquant pour ${biz.id}, notification non envoyée`);
+      return;
+    }
+    if (sendMode.mode === "template") {
+      await cloudAdapter.sendTemplate(
+        biz.ownerPhone,
+        { name: sendMode.template.name, lang: sendMode.template.lang, params: [biz.name, name, when] },
+        biz.id,
+      );
+      return;
+    }
     const adapter = getWhatsAppAdapter();
     await adapter.sendText(biz.ownerPhone, text, biz.id);
   } catch (err) {

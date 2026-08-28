@@ -1,6 +1,7 @@
 import { prisma } from "./db";
 import { addDays, formatDate, formatTime } from "./format";
-import { getWhatsAppAdapter } from "./whatsapp/cloud";
+import { cloudAdapter, getWhatsAppAdapter } from "./whatsapp/cloud";
+import { resolveSendMode } from "./whatsapp/templates";
 import { handleInbound } from "./bot/engine";
 
 export async function sendJ1Reminders() {
@@ -34,6 +35,17 @@ export async function sendJ1Reminders() {
         ? `Fàttali : rendez-vous bi ëpp na suba ${formatTime(appt.startsAt)}${svc} ci ${appt.business.name}.\nSu nga mënul ñëw, tegal « j'annule ».`
         : `Rappel : rendez-vous demain ${formatDate(appt.startsAt)} à ${formatTime(appt.startsAt)}${svc} chez ${appt.business.name}.\nSi vous ne pouvez plus venir, répondez « j'annule ».`;
 
+    const sendMode = await resolveSendMode(
+      appt.businessId,
+      appt.customer.phone,
+      "reminder_j1",
+      appt.business.whatsappTemplatesJson,
+    );
+    if (sendMode.mode === "skip") {
+      console.warn(`[reminders] modèle "reminder_j1" manquant pour ${appt.businessId}, rappel non envoyé (${appt.id})`);
+      continue;
+    }
+
     const conv = await prisma.conversation.findFirst({
       where: {
         businessId: appt.businessId,
@@ -63,7 +75,19 @@ export async function sendJ1Reminders() {
           language: lang,
         },
       });
-      await adapter.sendText(appt.customer.phone, text, appt.businessId);
+      if (sendMode.mode === "template") {
+        await cloudAdapter.sendTemplate(
+          appt.customer.phone,
+          {
+            name: sendMode.template.name,
+            lang: sendMode.template.lang,
+            params: [appt.business.name, formatDate(appt.startsAt), formatTime(appt.startsAt), appt.service?.name ?? ""],
+          },
+          appt.businessId,
+        );
+      } else {
+        await adapter.sendText(appt.customer.phone, text, appt.businessId);
+      }
       sent += 1;
     } catch {
       await prisma.appointment.update({
